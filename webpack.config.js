@@ -13,6 +13,9 @@ const config = {
     entry:{
         app:[entryFile],
     },
+    resolve:{
+        extensions:['.js','.jsx'],
+    },
     module:{
         rules:[
             {
@@ -82,11 +85,13 @@ const config = {
         ]
     },
     devServer:{
-        static:{
-            directory:path.join(__dirname,"static/"),
-            publicPath:"/assets",
-            watch:true,
-        },
+        static:[
+            {
+                directory:path.join(__dirname,"static/"),
+                publicPath:"/assets",
+                watch:true,
+            }
+        ],
         port:4000,
         host:"localhost",
         open:true,
