@@ -9,7 +9,7 @@ import { useDispatch,useSelector } from 'react-redux';
 const StyledCardComponent = styled(Card)`
     width:100%;
     height:auto;
-    font-size:22px;
+    font-size:18.5px;
     color:#fff;
     font-size:22px;
     background-color:rgb(15, 15, 15);
@@ -21,12 +21,14 @@ const StyledCardComponent = styled(Card)`
 const InputStoryContextDiv = styled.div`
     width:100%;
     margin-bottom:5.5px;
+    font-size:18.5px;
 `;
 
 const OutputStoryContextDiv = styled.div`
     width:100%;
     border-radius:10px;
     background-color:rgb(34, 34, 34);
+    font-size:18.5px;
 `;
 
 const StyledImage= styled(Image)`
@@ -44,16 +46,19 @@ const InnerInputStoryContext=styled.div`
 const SingleStoryLine=({data,isLastOne})=>{
     const {creatingStory} = useSelector((state)=>state.storyline);
     const dispatch = useDispatch();
+
     const [visible,setVisible]=useState(false);
     const onClickStyledImage=useCallback(()=>{
         setVisible(true);
     },[])
 
     const onClickUndo = useCallback(()=>{
+        console.log('undo');
         dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'forth'});
     },[])
 
     const onClickRedo = useCallback(()=>{
+        console.log('redo');
         dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'back'});
     },[])
 
@@ -63,22 +68,22 @@ const SingleStoryLine=({data,isLastOne})=>{
                 {
                     data.inputType==='text'
                     &&
-                    <InputStoryContextDiv>
-                        <MessageOutlined/>&nbsp;   
-                        {data.inputText}
+                    <InputStoryContextDiv style={{display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+                        <span>
+                            <MessageOutlined/>&nbsp;   
+                            {data.inputText}
+                        </span>
                         {
                             isLastOne
                             &&
-                            <div>
+                            <span>
                                 <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginLeft:'2.5px'}}>
                                     <LeftCircleOutlined></LeftCircleOutlined>
-                                    <p>UNDO</p>
                                 </Button>
                                 <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
                                     <RightCircleOutlined></RightCircleOutlined>
-                                    <p>REDO</p>
                                 </Button>
-                            </div>
+                            </span>
                         }
                     </InputStoryContextDiv>
                 }
@@ -98,20 +103,20 @@ const SingleStoryLine=({data,isLastOne})=>{
                             />
                             {isLastOne&&
                             <div>
-                                <Button style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginRight:'2.5px'}}>
+                                <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginRight:'2.5px'}}>
                                     <LeftCircleOutlined></LeftCircleOutlined>
-                                    <p>UNDO</p>
                                 </Button>
-                                <Button style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                                <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
                                     <RightCircleOutlined></RightCircleOutlined>
-                                    <p>REDO</p>
                                 </Button>
                             </div>}
                         </InnerInputStoryContext>
                         <div style={{display:'none'}}>
                             <Image.PreviewGroup preview={{visible,onVisibleChange:vis=>setVisible(false)}}>
                                 {
-                                    <Image src={data.inputText[0]}/>
+                                    data.inputText.map((v,i)=>(
+                                        <Image key={i} src={v}/>
+                                    ))
                                 }
                             </Image.PreviewGroup>
                         </div>

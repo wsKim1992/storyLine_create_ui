@@ -4,9 +4,16 @@ import styled from 'styled-components';
 import faker from 'faker';
 import { useSelector } from 'react-redux';
 
+/**
+ * 'Nanum Myeongjo'
+ * 'Open Sans'
+ * 
+ *  */
+
 const StoryLineWrap = styled.div`
     width:90%;
     height:95%;
+    font-family: 'Nanum Myeongjo';
 `;
 
 const ConversationComponent = memo(()=>{
