@@ -1,38 +1,71 @@
-import React,{useState,useCallback, useEffect} from 'react';
+import React,{useState,useRef,useEffect, useCallback} from 'react';
 import {Button,Row,Col,Input,Image} from 'antd';
 import {SendOutlined,LeftCircleOutlined,RightCircleOutlined
 ,RedoOutlined,PictureOutlined,FileAddOutlined,SaveOutlined} from '@ant-design/icons';
 import './conversationPage.css';
 import {LOAD_STORY_REQUEST} from '../../../reducers/storyline';
 import { useDispatch,useSelector } from 'react-redux';
-import ImageUpload from './ImageUpload';
+//import ImageUpload from './ImageUpload';
 
 const { Search } = Input;
 
 const InputComponent = ()=>{
     const dispatch = useDispatch();
-    const {loadingStory} = useSelector((state)=>state.storyline);
-    const modeList = ['Do','Say','image'];
+    const {loadingStory,loadedStory} = useSelector((state)=>state.storyline);
+    const modeList = ['스토리','대화'];
     const modeMessage = ['What do you do?','What do you say?','What happens next?'];
     const [modeIdx,setModeIdx]=useState(0);
     const [message,setMessage] = useState('');
+    const [inputType,setInputType] = useState('text');
+    const searchRef = useRef(null);
+
+    useEffect(()=>{
+        if(!loadingStory&&loadedStory){
+            setMessage('');
+        }
+    },[loadingStory,loadedStory])
 
     const changeMode=(e)=>{
-        if(modeIdx===2)setModeIdx(0);
-        else setModeIdx(prevModeIdx=>prevModeIdx+1);
+        if(modeIdx>=modeList.length-1){
+            setModeIdx(0);
+        }else{
+            setModeIdx(prevModeIdx=>prevModeIdx+1);
+        } 
+        setInputType('text');
         setMessage('');
     }
 
     const onChangeMessage = (e)=>{
-        setMessage(e.target.value);
+        console.log(inputType);
+        if(inputType==='text'){
+            setMessage(e.target.value);
+        }else{
+            const file = e.target.files[0];
+            if(file.type.match('image/*')){
+                let fileReader = new FileReader();
+                fileReader.onload = (evt)=>{
+                    setMessage(evt.target.result);
+                }
+                fileReader.readAsDataURL(file);
+            }else{
+                alert("이미지 파일을 올려 주세요!");
+                setMessage('');
+            }
+        }
     }
 
     const onSearch=(value)=>{
-        if(message===''||(Array.isArray(message)&&message.length===0)){return false;}
-        dispatch({type:LOAD_STORY_REQUEST, data:{inputType:modeList[modeIdx]==='image'?'image':'text',inputText:message}})
-        setTimeout(()=>{
-            Array.isArray(message)?setMessage([]):setMessage('');
-        },0);
+        if(message===''){return false;}
+        dispatch({type:LOAD_STORY_REQUEST, data:{inputType:inputType==='file'?'image':'text',inputText:message}})
+    }
+
+    const changeInputType = ()=>{
+        console.log(inputType);
+        if(inputType==='text'){
+            setInputType('file');
+        }else{
+            setInputType('text');
+        }
     }
 
     return( 
@@ -57,14 +90,23 @@ const InputComponent = ()=>{
                             <p>OPEN</p>
                         </Button>
                     </Col>
-                    <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
-                        <Button style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                            <label htmlFor={modeList[modeIdx]==='image'?'imageInput':null}>
-                                <PictureOutlined />
-                                <p>UPLOAD IMAGE</p>
-                            </label>
-                        </Button>
-                    </Col>
+                    {
+                        modeList[modeIdx]==='스토리'&&
+                        <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
+                            <Button onClick={changeInputType} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                                <label htmlFor={inputType==='file'?'searchComponent':null}>
+                                    <PictureOutlined />
+                                    <p>
+                                        {
+                                            inputType==='text'?
+                                            'TO IMAGE MODE'
+                                            :'UPLOAD IMAGE'
+                                        }
+                                    </p>
+                                </label>
+                            </Button>
+                        </Col>
+                    }
                 </Row>
             </div>
             <div id="inputComponent" style={{borderRadius:'10px',border:'1px solid #454545',width:'100%',height:'auto',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
@@ -76,27 +118,18 @@ const InputComponent = ()=>{
                         </Button>    
                     </Col>
                     <Col span={20}>
-                        {
-                            modeList[modeIdx]!=='image'
-                            ?
-                            <Search
-                                type="text"
-                                style={{color:'#454545'}}
-                                id="searchComponent"
-                                placeholder={modeMessage[modeIdx]}
-                                allowClear
-                                enterButton={<SendOutlined />}
-                                size="large"
-                                onChange={onChangeMessage}
-                                onSearch={onSearch}
-                                loading={loadingStory}
-                            />
-                            :(
-                                <div style={{display:'flex',flexDirection:'row',alignItems:'center',width:'100%',height:'100px'}}>
-                                    <ImageUpload message={message} setMessage={setMessage} onSearch={onSearch}/>
-                                </div>
-                            )
-                        }
+                        <Search
+                            type={inputType}
+                            style={{color:'#454545'}}
+                            id="searchComponent"
+                            placeholder={modeMessage[modeIdx]}
+                            allowClear
+                            enterButton={<SendOutlined />}
+                            size="large"
+                            onChange={onChangeMessage}
+                            onSearch={onSearch}
+                            loading={loadingStory}
+                        />
                     </Col> 
                 </Row>
             </div>

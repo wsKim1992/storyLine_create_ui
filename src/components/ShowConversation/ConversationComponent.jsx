@@ -1,4 +1,4 @@
-import React,{memo} from 'react';
+import React,{memo, useEffect} from 'react';
 import SingleStoryLine from './SingleStoryLine';
 import styled from 'styled-components';
 import faker from 'faker';
@@ -24,7 +24,7 @@ const ConversationComponent = memo(()=>{
             <StoryLineWrap>
                 {
                     createdStory.map((v,i)=>{
-                        return(<SingleStoryLine style={{color:'#fff'}} key={i} data={v} isLastOne={false}/>)
+                        return(<SingleStoryLine style={{color:'#fff'}} key={v.id} data={v} isLastOne={false}/>)
                     })
                 }
                 <SingleStoryLine data={creatingStory} isLastOne={true}/>

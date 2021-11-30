@@ -93,7 +93,7 @@ const config = {
             }
         ],
         port:4000,
-        host:"localhost",
+        host:"192.168.0.20",
         open:true,
         hot:true,
     }

@@ -1,10 +1,42 @@
-import React,{useState,useCallback} from 'react';
-import {LOAD_STORY_REQUEST,LOAD_STORY_SUCCESS,LOAD_STORY_FAILURE,CHANGE_LAST_STORY_INDEX} from '../../../reducers/storyline';
+import React,{useState,useCallback,useRef, useEffect} from 'react';
+import {CHANGE_STORYLINE,LOAD_STORY_SUCCESS,LOAD_STORY_FAILURE,CHANGE_LAST_STORY_INDEX} from '../../../reducers/storyline';
 import PropTypes from 'prop-types';
-import {Layout,Badge,Card,Image,Button} from 'antd';
-import {MessageOutlined,LeftCircleOutlined,RightCircleOutlined} from '@ant-design/icons'
+import {Card,Image,Button} from 'antd';
+import {SendOutlined,MessageOutlined,LeftCircleOutlined,RightCircleOutlined} from '@ant-design/icons';
 import styled from 'styled-components';
 import { useDispatch,useSelector } from 'react-redux';
+
+let StyledTextArea = styled.textarea`
+    display:inline-block;
+    background-color:rgb(34, 34, 34);
+    color:#fff;
+    width:100%;
+    height:100%;
+    border:none;
+    border-radius:5.5px;
+    overflow:hidden;
+`;
+
+const ChangeTextOutPutButtonWrap = styled.span`
+    display:flex;
+    flex-direction:row;
+    align-items : center;
+    justify-content:center;
+    width : 2.25%;
+    height : 95%;
+`;
+const ChangeTextOutPutButton = styled(Button)`
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    border-radius:5.5px;
+    border:none;
+    background-color:#1890ff;
+    color:#fff;
+`;
 
 const StyledCardComponent = styled(Card)`
     width:100%;
@@ -29,12 +61,16 @@ const OutputStoryContextDiv = styled.div`
     border-radius:10px;
     background-color:rgb(34, 34, 34);
     font-size:18.5px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
 `;
 
 const StyledImage= styled(Image)`
     width:200px;
     border-radius:10px;
-`
+`;
 
 const InnerInputStoryContext=styled.div`
     display:flex;
@@ -44,23 +80,56 @@ const InnerInputStoryContext=styled.div`
 `;
 
 const SingleStoryLine=({data,isLastOne})=>{
+    const outputTextRef = useRef(null);
+    const textareaRef = useRef(null);
+    const [outputHeight,setOutputHeight]=useState(null);
     const {creatingStory} = useSelector((state)=>state.storyline);
     const dispatch = useDispatch();
-
     const [visible,setVisible]=useState(false);
+    const [editMode,setEditMode] = useState(false);
+    const [outputText,setOutputText] = useState(isLastOne?data.outputText[creatingStory.index]:data.outputText);
     const onClickStyledImage=useCallback(()=>{
         setVisible(true);
-    },[])
+    },[]);
+
+    useEffect(()=>{
+        if(!editMode){
+            setOutputHeight(outputTextRef.current.getBoundingClientRect().height);
+        }else{
+            if(textareaRef.current){
+                setOutputHeight(textareaRef.current.scrollHeight);
+            }    
+        }
+        
+    },[textareaRef.current?.scrollHeight])
+
+    useEffect(()=>{
+        setOutputText(isLastOne?data.outputText[data.index]:data.outputText);
+    },[isLastOne?data.index:data.outputText]);
 
     const onClickUndo = useCallback(()=>{
-        console.log('undo');
         dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'forth'});
-    },[])
+    },[]);
 
     const onClickRedo = useCallback(()=>{
-        console.log('redo');
         dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'back'});
-    },[])
+    },[]);
+
+    const onClickOutputText = useCallback(()=>{
+        if(!editMode){
+            setEditMode(true);
+        }
+    },[editMode]);
+
+    const onEditOutput = useCallback(()=>{
+        const dataToSend = isLastOne?{id:data.id,outputText,flag:true}:{id:data.id,outputText};
+        dispatch({type:CHANGE_STORYLINE,data:dataToSend});
+        setEditMode(false);
+    },[outputText]);
+
+    const onChangeOutputText = (evt)=>{
+        setOutputText(evt.target.value);
+    };
 
     return(
         <React.Fragment>
@@ -74,6 +143,8 @@ const SingleStoryLine=({data,isLastOne})=>{
                             {data.inputText}
                         </span>
                         {
+                            !editMode
+                            &&
                             isLastOne
                             &&
                             <span>
@@ -84,6 +155,12 @@ const SingleStoryLine=({data,isLastOne})=>{
                                     <RightCircleOutlined></RightCircleOutlined>
                                 </Button>
                             </span>
+                        }
+                        {
+                            editMode&&
+                            <ChangeTextOutPutButtonWrap>
+                                <ChangeTextOutPutButton onClick={onEditOutput}><SendOutlined /></ChangeTextOutPutButton>  
+                            </ChangeTextOutPutButtonWrap>
                         }
                     </InputStoryContextDiv>
                 }
@@ -98,34 +175,52 @@ const SingleStoryLine=({data,isLastOne})=>{
                             <StyledImage 
                                 preview={{visible:false}} 
                                 width={200}
-                                src={data.inputText[0]}
+                                src={data.inputText}
                                 onClick={onClickStyledImage}
                             />
-                            {isLastOne&&
-                            <div>
-                                <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginRight:'2.5px'}}>
-                                    <LeftCircleOutlined></LeftCircleOutlined>
-                                </Button>
-                                <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                                    <RightCircleOutlined></RightCircleOutlined>
-                                </Button>
-                            </div>}
+                            {
+                                !editMode
+                                &&
+                                isLastOne
+                                &&
+                                <div>
+                                    <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginRight:'2.5px'}}>
+                                        <LeftCircleOutlined></LeftCircleOutlined>
+                                    </Button>
+                                    <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                                        <RightCircleOutlined></RightCircleOutlined>
+                                    </Button>
+                                </div>
+                            }
+                            {
+                                editMode&&
+                                <ChangeTextOutPutButtonWrap>
+                                    <ChangeTextOutPutButton onClick={onEditOutput}><SendOutlined /></ChangeTextOutPutButton>  
+                                </ChangeTextOutPutButtonWrap>
+                            }
                         </InnerInputStoryContext>
                         <div style={{display:'none'}}>
                             <Image.PreviewGroup preview={{visible,onVisibleChange:vis=>setVisible(false)}}>
-                                {
+                                <Image src={data.inputText} />
+                                {/* {
                                     data.inputText.map((v,i)=>(
                                         <Image key={i} src={v}/>
                                     ))
-                                }
+                                } */}
                             </Image.PreviewGroup>
                         </div>
-                        
                     </InputStoryContextDiv>
                 }
-                <OutputStoryContextDiv>
-
-                    {isLastOne?data.outputText[creatingStory.index]:data.outputText}
+                
+                <OutputStoryContextDiv ref={outputTextRef} onClick={onClickOutputText}>    
+                    {!editMode?
+                        (isLastOne?data.outputText[creatingStory.index]:data.outputText)
+                        :(
+                            <>
+                                <StyledTextArea ref={textareaRef} style={{height:`${outputHeight}px`}} onChange={onChangeOutputText} value={outputText}/>
+                            </>
+                        ) 
+                    }
                 </OutputStoryContextDiv>
             </StyledCardComponent>
         </React.Fragment>
