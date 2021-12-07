@@ -57,6 +57,7 @@ const InputStoryContextDiv = styled.div`
 `;
 
 const OutputStoryContextDiv = styled.div`
+    user-select:none;
     position:relative;
     width:100%;
     height:100%;
@@ -85,11 +86,12 @@ const SingleStoryLine=({data,isLastOne})=>{
     const outputTextRef = useRef(null);
     const textareaRef = useRef(null);
     const [outputHeight,setOutputHeight]=useState(null);
-    const {creatingStory,newStoryLoading} = useSelector((state)=>state.storyline);
+    const {creatingStory,newStoryLoading,loadingStory} = useSelector((state)=>state.storyline);
     const dispatch = useDispatch();
     const [visible,setVisible]=useState(false);
     const [editMode,setEditMode] = useState(false);
     const [outputText,setOutputText] = useState(isLastOne?data.outputText[creatingStory.index]:data.outputText);
+    
     const onClickStyledImage=useCallback(()=>{
         setVisible(true);
     },[]);
@@ -109,22 +111,13 @@ const SingleStoryLine=({data,isLastOne})=>{
         setOutputText(isLastOne?data.outputText[data.index]:data.outputText);
     },[isLastOne?data.index:data.outputText,data]);
 
-    const onClickRedo = useCallback(()=>{
-        console.log(`index : ${creatingStory.index}`);
-        console.log(`length : ${creatingStory.outputText.length-1}`);
-        if(creatingStory.index<creatingStory.outputText.length-1){
-            console.log(`CHANGE_LAST_STORY_INDEX`);
-            dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'forth'});
-        }else{
-            console.log(`CHANGE_LAST_STORY_INDEX_REQUEST`);
-            const inputData = {inputText:data.inputText,storyMode:data.storyMode};
-            dispatch({type:CHANGE_LAST_STORY_INDEX_REQUEST,data:inputData});
-        }
-    },[creatingStory.outputText,creatingStory.index]);
+    const onClickRedo = isLastOne? useCallback(()=>{
+        dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'forth'});    
+    },[]):null;
 
-    const onClickUndo = useCallback(()=>{
+    const onClickUndo =  isLastOne? useCallback(()=>{
         dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'back'});
-    },[]);
+    },[]):null;
 
     const onClickOutputText = useCallback(()=>{
         if(!editMode){
@@ -158,14 +151,21 @@ const SingleStoryLine=({data,isLastOne})=>{
                             &&
                             isLastOne
                             &&
-                            <span>
-                                <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginLeft:'2.5px'}}>
-                                    <LeftCircleOutlined></LeftCircleOutlined>
-                                </Button>
-                                <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                                    <RightCircleOutlined></RightCircleOutlined>
-                                </Button>
-                            </span>
+                            (
+                                <div style={{width:'15.5%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                                    <span>
+                                        {creatingStory.outputText&&`${creatingStory.index+1}/${creatingStory.outputText.length}`}
+                                    </span>
+                                    <span>
+                                        <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginLeft:'2.5px'}}>
+                                            <LeftCircleOutlined></LeftCircleOutlined>
+                                        </Button>
+                                        <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                                            <RightCircleOutlined></RightCircleOutlined>
+                                        </Button>
+                                    </span>
+                                </div >
+                            )
                         }
                         {
                             editMode&&
@@ -219,7 +219,7 @@ const SingleStoryLine=({data,isLastOne})=>{
                 }
                 
                 <OutputStoryContextDiv ref={outputTextRef} onClick={onClickOutputText}>
-                    {isLastOne&&newStoryLoading
+                    {isLastOne&&(loadingStory||newStoryLoading)
                         &&
                         (<OutputStoryContextDiv style={{width:'100%',backgroundColor:'#454545',position:'absolute',opacity:'0.55'}}>
                             <Image width={50} height={50} src={"/assets/img/1494-unscreen.gif"}/>
@@ -233,6 +233,7 @@ const SingleStoryLine=({data,isLastOne})=>{
                             </>
                         ) 
                     }
+                    
                 </OutputStoryContextDiv>
             </StyledCardComponent>
         </React.Fragment>

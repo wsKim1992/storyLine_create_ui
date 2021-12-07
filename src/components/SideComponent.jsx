@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 const SideComponent = ()=>{
     return (
-        <div>LeftSideComponent</div>
+        <div></div>
     )
 }
 

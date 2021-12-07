@@ -134,11 +134,6 @@ const reducer = (state=initiallState,action)=>{
                 draft.loadStoryError=null;
                 draft.loadingStory=true;
                 draft.loadedStory=false;
-                break;
-            }
-            case LOAD_STORY_SUCCESS:{
-                draft.loadingStory=false;
-                draft.loadedStory=true;
                 if(draft.creatingStory){
                     draft.createdStory=draft.createdStory.concat({
                         id:draft.creatingStory.id,
@@ -147,7 +142,20 @@ const reducer = (state=initiallState,action)=>{
                         outputText:draft.creatingStory.outputText[draft.creatingStory.index]
                     })
                 }
-                draft.creatingStory=dummpyStoryLine(action.data);
+                draft.creatingStory={
+                    id:Date.now(),
+                    inputType:action.data.inputType,
+                    inputText:action.data.inputText,
+                    storyMode:action.data.storyMode,
+                    index:0,
+                    outputText:[''],
+                }
+                break;
+            }
+            case LOAD_STORY_SUCCESS:{
+                draft.loadingStory=false;
+                draft.loadedStory=true;
+                draft.creatingStory={...state.creatingStory,outputText:state.creatingStory.storyMode==='talk'?[...action.data.outputText]:[action.data.outputText]};
                 break;
             }
             case LOAD_STORY_FAILURE:{

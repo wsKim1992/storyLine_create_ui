@@ -3,7 +3,7 @@ import {Button,Row,Col,Input,Image} from 'antd';
 import {SendOutlined,LeftCircleOutlined,RightCircleOutlined
 ,RedoOutlined,PictureOutlined,FileAddOutlined,SaveOutlined} from '@ant-design/icons';
 import './conversationPage.css';
-import {LOAD_STORY_REQUEST,ENCODE_AND_SAVE_REQUEST,ENCODE_AND_SAVE_INIT,DECODE_AND_UPLOAD_REQUEST} from '../../../reducers/storyline';
+import {LOAD_STORY_REQUEST,ENCODE_AND_SAVE_REQUEST,ENCODE_AND_SAVE_INIT,DECODE_AND_UPLOAD_REQUEST, CHANGE_LAST_STORY_INDEX_REQUEST} from '../../../reducers/storyline';
 import { useDispatch,useSelector } from 'react-redux';
 import ImageUpload from './ImageUpload';
 
@@ -19,7 +19,6 @@ const InputComponent = ()=>{
     const [inputType,setInputType] = useState('text');
 
     const saveFile = (encodedText)=>{
-        console.log('saveFile');
         const blob = new Blob([encodedText],{type:'text/plain'});
         const fileName = `${Date.now()}.nst`;
         const aTag = document.createElement('a');
@@ -27,6 +26,7 @@ const InputComponent = ()=>{
         aTag.href = fileURL
         aTag.download = fileName;
         aTag.click();
+        console.log(fileURL);
         window.URL.revokeObjectURL(fileURL);
     }
 
@@ -102,17 +102,23 @@ const InputComponent = ()=>{
         }
     }
 
+    const onClickRetry = useCallback(()=>{
+        const inputData={inputText:creatingStory.inputText,storyMode:creatingStory.storyMode};
+        dispatch({type:CHANGE_LAST_STORY_INDEX_REQUEST,data:inputData});
+    },[creatingStory]);
+
     return( 
         <React.Fragment>
             <div style={{borderRadius:'10px',border:'1px solid #454545',width:'100%',height:'39.5%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                <Row justify="end" style={{width:'95%',height:'80%'}}>
+                <Row justify="end" style={{width:'90%',height:'80%',marginRight:'28px',padding:'0 25px'}}>
                     <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
-                        <Button style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                        <Button onClick={onClickRetry} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
                             <RedoOutlined></RedoOutlined>
                             <p>RETRY</p>
                         </Button>
                     </Col>
                     <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
+                        <input style={{display:"none"}} type="file" id="savePath" webkitdirectory/>
                         <Button onClick={onClickSave} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
                             <SaveOutlined />
                             <p>SAVE</p>
@@ -135,7 +141,8 @@ const InputComponent = ()=>{
                                     <PictureOutlined />
                                     <p>
                                         {
-                                            'UPLOAD IMAGE'
+                                            inputType==='file'?
+                                            'TEXT':'IMAGE'
                                         }
                                     </p>
                                 
@@ -174,7 +181,6 @@ const InputComponent = ()=>{
                                 <ImageUpload message={message} setMessage={setMessage} onSearch={onSearch}/>
                             )
                         }
-
                     </Col> 
                 </Row>
             </div>

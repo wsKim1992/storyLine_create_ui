@@ -10,13 +10,13 @@ const StoryLinePage = ()=>{
             <Layout style={{height:'100%',backgroundColor:'rgb(18, 18, 18)'}}>
                 <PageHeader style={{height:'7.5%'}} title={'Stroy Creation GAME'}/>
                 <Row style={{height:'92.5%'}} gutter={[16,16]}>
-                    <Col xs={24} md={4} style={{height:'100%'}}>
+                    <Col md={4} style={{height:'auto'}}>
                         <SideComponent/>
                     </Col>
-                    <Col xs={24} md={16} style={{height:'100%'}}>
+                    <Col md={16} style={{height:'100%'}}>
                         <ShowConverasation/>
                     </Col>
-                    <Col xs={24} md={4} style={{height:'100%'}}>
+                    <Col md={4} style={{height:'auto'}}>
                         <SideComponent/>
                     </Col>
                 </Row>

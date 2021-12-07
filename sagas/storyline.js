@@ -9,18 +9,17 @@ const loadStoryAPI =(data)=>{
     const formData = new FormData();
     formData.append('function',`generate_${data.storyMode}`);
     formData.append('input_text',data.inputText);
-
     return axios.post('/ai-tools',formData);
 }
 
 function* loadStory(action){
     try{
         const output = yield call(loadStoryAPI,action.data);
-        console.log(output.data);
-        console.log({...action.data});
+        console.log(output.data['output_ko']);
+        const outputText = action.data.storyMode==='talk'?output.data['output_ko'].split("\n\n").map(v=>`\"${v}\"`):output.data['output_ko']; 
         yield put({
             type:LOAD_STORY_SUCCESS,
-            data:{...action.data,outputText:output.data['output_ko']}
+            data:{...action.data,outputText}
         });
     }catch(err){
         yield put({
@@ -75,7 +74,7 @@ async function decodeTextData(textData){
 function* decodeAndUpload(action){
     const {textData}=action;
     const resultArr = (yield call(decodeTextData,textData)).sort((a,b)=>a.id-b.id);
-    yield put({type:DECODE_AND_UPLOAD_SUCCESS,data:resultArr})
+    yield put({type:DECODE_AND_UPLOAD_SUCCESS,data:resultArr});
 }
 
 function* watchDecodeAndUpload(){
@@ -92,7 +91,6 @@ function callChangeLastStoryAPI(data){
 function* changeLastStory(action){
     try{
         const outputResp = yield call(callChangeLastStoryAPI,action.data);
-        console.log(outputResp);
         yield put({type:CHANGE_LAST_STORY_INDEX_SUCCESS,data:outputResp.data['output_ko']});
     }catch(err){
         console.error(err);
