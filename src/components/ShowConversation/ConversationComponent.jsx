@@ -17,17 +17,21 @@ const StoryLineWrap = styled.div`
 `;
 
 const ConversationComponent = memo(()=>{
-    const {createdStory,creatingStory} = useSelector((state)=>state.storyline)
+    const {createdStory,creatingStory} = useSelector((state)=>state.storyline);
     
     return(
         <React.Fragment>
             <StoryLineWrap>
                 {
+                    createdStory.length!==0&&
                     createdStory.map((v,i)=>{
                         return(<SingleStoryLine style={{color:'#fff'}} key={v.id} data={v} isLastOne={false}/>)
                     })
                 }
-                <SingleStoryLine data={creatingStory} isLastOne={true}/>
+                {
+                    creatingStory&&
+                    <SingleStoryLine data={creatingStory} isLastOne={true}/>
+                }
             </StoryLineWrap>
         </React.Fragment>
     )

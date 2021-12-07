@@ -8,11 +8,11 @@ const {Content}=Layout;
 
 const ConversationIndex = ()=>{
     const conversationRef = useRef(null);
-    const {createdStory} = useSelector((state)=>state.storyline);
+    const {createdStory,creatingStory} = useSelector((state)=>state.storyline);
 
     useEffect(()=>{
         conversationRef.current.scrollTo(0,conversationRef.current.scrollHeight-conversationRef.current.clientHeight);
-    },[createdStory])
+    },[createdStory,creatingStory])
 
     return(
         <React.Fragment>

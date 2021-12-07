@@ -19,14 +19,11 @@ const StyledImage = styled.img`
 const fileBase64List = (file)=>{
     
     return new Promise((resolve,reject)=>{
+        console.log(file);
         if(file.type.match('image/*')){
             let reader = new FileReader();
             reader.onload = (evt)=>{
-                let tempImg = new Image();
-                tempImg.src = evt.target.result;
-                tempImg.onload=()=>{
-                    resolve({url:tempImg.src,width:tempImg.width,height:tempImg.height});
-                }
+                resolve(evt.target.result);
             }
             reader.readAsDataURL(file);
         }else{
@@ -37,63 +34,63 @@ const fileBase64List = (file)=>{
 
 
 const ImageUpload = ({message,setMessage,onSearch})=>{
-    /* const [fileArr,setFileArr]=useState([]) */
     const {loadingStory} = useSelector((state)=>state.storyline);
+    const [fileName,setFileName] = useState('');
+
     const onDrop = async(acceptedFiles,rejectedFiles)=>{
         if(Object.keys(rejectedFiles).length!=0){
             alert("부적절한 파일이 업로드 되었음!");
             return false;
         }
-        
-        const imgDataArr = await Promise.all(acceptedFiles.map(async(v,i)=>{
-            const data = await fileBase64List(v);
-            return data;
-        }))
-        setMessage([...imgDataArr.map(v=>v.url)]);
+        try{
+            const data = await fileBase64List(acceptedFiles[0]);
+            setFileName(acceptedFiles[0].name);
+            setMessage(data);
+        }catch(err){
+            alert(err.message);
+        }
     }
 
-    const renderedImgs = message.length!==0?(
-        <div>
-            {message.map((v,i)=><StyledImage key={i} src={v}/>)}
-        </div>):(
-            <p>
-                사진을 업로드 해주세요.
-            </p>
-        )
+    const renderedImgs = (
+        <p>
+            {fileName!==''?fileName:'파일을 업로드 해주세요!'}
+        </p>
+    )
             
         
     return(
         <React.Fragment>
             <Dropzone
                 style={{
+                    display:"flex",
                     width:'100%',
-                    height:'100%',
+                    height:'50%',
                     borderRadius:'8.5px',
                     objectFit:"cover",
                     objectPosition:"center",
                     backgroundColor:'#fff',
                     color:'#fff'
                 }}
-                multiple={true}
+                multiple={false}
                 accept="image/*"
                 onDrop={(acceptedFiles,rejectedFiles)=>onDrop(acceptedFiles,rejectedFiles)}>
                 {({getRootProps,getInputProps,isDragAccept,isDragReject})=>{
                     
                     return (
-                        <>
-                            <div style={{overflowY:'auto',display:'flex',flexDirection:'row',alignItems:'center',width:'80%',height:'100%',color:'#fff'}} {...getRootProps()}>
-                                <input {...getInputProps()}/>
+                        <div style={{display:'flex',width:'100%'}}>
+                            <div style={{display:'flex',flexDirection:'row',alignItems:'center',width:'80%',height:'100%',color:'#fff'}} {...getRootProps()}>
+                                <input style={{display:'block'}} {...getInputProps()}/>
                                 {isDragReject?
                                     <p>잘못된 파일 업로드.</p>
                                     :renderedImgs
                                 }
                             </div>
                             <div style={{width:'18.5%',height:'100%',display:'flex',justifyContent:'center',alignItems:'center'}}>
-                                <Button loading={loadingStory} onClick={onSearch} style={{width:'90%',height:'90%',border:'none',borderRadius:'5.5px',backgroundColor:'rgb(34, 34, 34)'}}>
+                                <Button loading={loadingStory} onClick={onSearch} style={{width:'90%',height:'100%',border:'none',borderRadius:'5.5px',backgroundColor:'rgb(34, 34, 34)'}}>
                                     <SendOutlined />
                                 </Button>
                             </div>
-                        </>
+                        </div>
                     )
                 }}
             </Dropzone>

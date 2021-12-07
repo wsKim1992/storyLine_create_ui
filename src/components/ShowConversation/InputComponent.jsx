@@ -3,21 +3,39 @@ import {Button,Row,Col,Input,Image} from 'antd';
 import {SendOutlined,LeftCircleOutlined,RightCircleOutlined
 ,RedoOutlined,PictureOutlined,FileAddOutlined,SaveOutlined} from '@ant-design/icons';
 import './conversationPage.css';
-import {LOAD_STORY_REQUEST} from '../../../reducers/storyline';
+import {LOAD_STORY_REQUEST,ENCODE_AND_SAVE_REQUEST,ENCODE_AND_SAVE_INIT,DECODE_AND_UPLOAD_REQUEST} from '../../../reducers/storyline';
 import { useDispatch,useSelector } from 'react-redux';
-//import ImageUpload from './ImageUpload';
+import ImageUpload from './ImageUpload';
 
 const { Search } = Input;
 
 const InputComponent = ()=>{
     const dispatch = useDispatch();
-    const {loadingStory,loadedStory} = useSelector((state)=>state.storyline);
+    const {encodedStoryLine,loadingStory,loadedStory,createdStory,creatingStory,encodeAndSaveLoaded,encodeAndSaveLoading} = useSelector((state)=>state.storyline);
     const modeList = ['스토리','대화'];
     const modeMessage = ['What do you do?','What do you say?','What happens next?'];
     const [modeIdx,setModeIdx]=useState(0);
     const [message,setMessage] = useState('');
     const [inputType,setInputType] = useState('text');
-    const searchRef = useRef(null);
+
+    const saveFile = (encodedText)=>{
+        console.log('saveFile');
+        const blob = new Blob([encodedText],{type:'text/plain'});
+        const fileName = `${Date.now()}.nst`;
+        const aTag = document.createElement('a');
+        const fileURL = window.URL.createObjectURL(blob);
+        aTag.href = fileURL
+        aTag.download = fileName;
+        aTag.click();
+        window.URL.revokeObjectURL(fileURL);
+    }
+
+    useEffect(()=>{
+        if(encodeAndSaveLoaded&&!encodeAndSaveLoading){
+            saveFile(encodedStoryLine);
+            dispatch({type:ENCODE_AND_SAVE_INIT});
+        }
+    },[encodeAndSaveLoaded,encodeAndSaveLoading])
 
     useEffect(()=>{
         if(!loadingStory&&loadedStory){
@@ -36,35 +54,51 @@ const InputComponent = ()=>{
     }
 
     const onChangeMessage = (e)=>{
-        console.log(inputType);
-        if(inputType==='text'){
-            setMessage(e.target.value);
-        }else{
-            const file = e.target.files[0];
-            if(file.type.match('image/*')){
-                let fileReader = new FileReader();
-                fileReader.onload = (evt)=>{
-                    setMessage(evt.target.result);
-                }
-                fileReader.readAsDataURL(file);
-            }else{
-                alert("이미지 파일을 올려 주세요!");
-                setMessage('');
-            }
-        }
+        console.log("onChangeMessage");
+        setMessage(e.target.value);
     }
 
     const onSearch=(value)=>{
         if(message===''){return false;}
-        dispatch({type:LOAD_STORY_REQUEST, data:{inputType:inputType==='file'?'image':'text',inputText:message}})
+        const storyMode = modeList[modeIdx]==='스토리'?'story':'talk';
+        dispatch({type:LOAD_STORY_REQUEST, data:{storyMode,inputType:inputType==='file'?'image':'text',inputText:message}});
     }
 
-    const changeInputType = ()=>{
-        console.log(inputType);
+    const changeInputType = (e)=>{
+        e.stopPropagation();
         if(inputType==='text'){
             setInputType('file');
         }else{
             setInputType('text');
+        }
+        setMessage('');
+    }
+
+    const onClickSave = ()=>{
+        if(!creatingStory||createdStory.length===0){
+            alert('스토리를 생성 해주세요!');
+            return false;
+        }
+        if(creatingStory){
+            dispatch({type:ENCODE_AND_SAVE_REQUEST,data:[...createdStory,{...creatingStory,outputText:creatingStory.outputText[creatingStory.index]}]});
+        }else{
+            dispatch({type:ENCODE_AND_SAVE_REQUEST,data:[...createdStory]});
+        }
+    }
+
+    const onClickUpload = (evt)=>{
+        const file = evt.target.files[0];
+        const fileType = file.name.split('.')[1]
+        if(fileType==='nst'){
+            let reader = new FileReader();
+            reader.onload=(readerEvt)=>{
+                const textData = readerEvt.target.result;
+                dispatch({type:DECODE_AND_UPLOAD_REQUEST,textData});
+            }
+            reader.readAsText(file,'base64');
+        }else{
+            alert(".nst 형식의 파일을 업로드 해주세요!");
+            return false;
         }
     }
 
@@ -79,31 +113,32 @@ const InputComponent = ()=>{
                         </Button>
                     </Col>
                     <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
-                        <Button style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                        <Button onClick={onClickSave} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
                             <SaveOutlined />
                             <p>SAVE</p>
                         </Button>
                     </Col>
                     <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
+                        <input id="readNSTFile" onChange={onClickUpload} type="file" style={{display:'none'}}/>
                         <Button style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                            <FileAddOutlined/>
-                            <p>OPEN</p>
+                            <label htmlFor={"readNSTFile"}>
+                                <FileAddOutlined/>
+                                <p>OPEN</p>
+                            </label>
                         </Button>
                     </Col>
                     {
                         modeList[modeIdx]==='스토리'&&
                         <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
                             <Button onClick={changeInputType} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                                <label htmlFor={inputType==='file'?'searchComponent':null}>
+                                
                                     <PictureOutlined />
                                     <p>
                                         {
-                                            inputType==='text'?
-                                            'TO IMAGE MODE'
-                                            :'UPLOAD IMAGE'
+                                            'UPLOAD IMAGE'
                                         }
                                     </p>
-                                </label>
+                                
                             </Button>
                         </Col>
                     }
@@ -118,18 +153,28 @@ const InputComponent = ()=>{
                         </Button>    
                     </Col>
                     <Col span={20}>
-                        <Search
-                            type={inputType}
-                            style={{color:'#454545'}}
-                            id="searchComponent"
-                            placeholder={modeMessage[modeIdx]}
-                            allowClear
-                            enterButton={<SendOutlined />}
-                            size="large"
-                            onChange={onChangeMessage}
-                            onSearch={onSearch}
-                            loading={loadingStory}
-                        />
+                        {
+                            inputType==='text'?
+                            (
+                                <Search
+                                    type='text'
+                                    style={{color:'#454545'}}
+                                    id="searchComponent"
+                                    placeholder={modeMessage[modeIdx]}
+                                    allowClear
+                                    enterButton={<SendOutlined />}
+                                    size="large"
+                                    onChange={onChangeMessage}
+                                    onSearch={onSearch}
+                                    loading={loadingStory}
+                                />
+                            )
+                            :
+                            (
+                                <ImageUpload message={message} setMessage={setMessage} onSearch={onSearch}/>
+                            )
+                        }
+
                     </Col> 
                 </Row>
             </div>

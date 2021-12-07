@@ -1,5 +1,5 @@
 import React,{useState,useCallback,useRef, useEffect} from 'react';
-import {CHANGE_STORYLINE,LOAD_STORY_SUCCESS,LOAD_STORY_FAILURE,CHANGE_LAST_STORY_INDEX} from '../../../reducers/storyline';
+import {CHANGE_STORYLINE,LOAD_STORY_SUCCESS,LOAD_STORY_FAILURE,CHANGE_LAST_STORY_INDEX,CHANGE_LAST_STORY_INDEX_REQUEST} from '../../../reducers/storyline';
 import PropTypes from 'prop-types';
 import {Card,Image,Button} from 'antd';
 import {SendOutlined,MessageOutlined,LeftCircleOutlined,RightCircleOutlined} from '@ant-design/icons';
@@ -57,14 +57,16 @@ const InputStoryContextDiv = styled.div`
 `;
 
 const OutputStoryContextDiv = styled.div`
+    position:relative;
     width:100%;
+    height:100%;
     border-radius:10px;
     background-color:rgb(34, 34, 34);
     font-size:18.5px;
     display:flex;
     flex-direction:row;
     align-items:center;
-    justify-content:space-between;
+    justify-content:center;
 `;
 
 const StyledImage= styled(Image)`
@@ -83,7 +85,7 @@ const SingleStoryLine=({data,isLastOne})=>{
     const outputTextRef = useRef(null);
     const textareaRef = useRef(null);
     const [outputHeight,setOutputHeight]=useState(null);
-    const {creatingStory} = useSelector((state)=>state.storyline);
+    const {creatingStory,newStoryLoading} = useSelector((state)=>state.storyline);
     const dispatch = useDispatch();
     const [visible,setVisible]=useState(false);
     const [editMode,setEditMode] = useState(false);
@@ -105,13 +107,22 @@ const SingleStoryLine=({data,isLastOne})=>{
 
     useEffect(()=>{
         setOutputText(isLastOne?data.outputText[data.index]:data.outputText);
-    },[isLastOne?data.index:data.outputText]);
-
-    const onClickUndo = useCallback(()=>{
-        dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'forth'});
-    },[]);
+    },[isLastOne?data.index:data.outputText,data]);
 
     const onClickRedo = useCallback(()=>{
+        console.log(`index : ${creatingStory.index}`);
+        console.log(`length : ${creatingStory.outputText.length-1}`);
+        if(creatingStory.index<creatingStory.outputText.length-1){
+            console.log(`CHANGE_LAST_STORY_INDEX`);
+            dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'forth'});
+        }else{
+            console.log(`CHANGE_LAST_STORY_INDEX_REQUEST`);
+            const inputData = {inputText:data.inputText,storyMode:data.storyMode};
+            dispatch({type:CHANGE_LAST_STORY_INDEX_REQUEST,data:inputData});
+        }
+    },[creatingStory.outputText,creatingStory.index]);
+
+    const onClickUndo = useCallback(()=>{
         dispatch({type:CHANGE_LAST_STORY_INDEX,direction:'back'});
     },[]);
 
@@ -202,19 +213,20 @@ const SingleStoryLine=({data,isLastOne})=>{
                         <div style={{display:'none'}}>
                             <Image.PreviewGroup preview={{visible,onVisibleChange:vis=>setVisible(false)}}>
                                 <Image src={data.inputText} />
-                                {/* {
-                                    data.inputText.map((v,i)=>(
-                                        <Image key={i} src={v}/>
-                                    ))
-                                } */}
                             </Image.PreviewGroup>
                         </div>
                     </InputStoryContextDiv>
                 }
                 
-                <OutputStoryContextDiv ref={outputTextRef} onClick={onClickOutputText}>    
+                <OutputStoryContextDiv ref={outputTextRef} onClick={onClickOutputText}>
+                    {isLastOne&&newStoryLoading
+                        &&
+                        (<OutputStoryContextDiv style={{width:'100%',backgroundColor:'#454545',position:'absolute',opacity:'0.55'}}>
+                            <Image width={50} height={50} src={"/assets/img/1494-unscreen.gif"}/>
+                        </OutputStoryContextDiv>)
+                    }
                     {!editMode?
-                        (isLastOne?data.outputText[creatingStory.index]:data.outputText)
+                        (outputText)
                         :(
                             <>
                                 <StyledTextArea ref={textareaRef} style={{height:`${outputHeight}px`}} onChange={onChangeOutputText} value={outputText}/>

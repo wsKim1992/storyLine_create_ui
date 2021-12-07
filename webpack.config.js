@@ -96,6 +96,9 @@ const config = {
         host:"192.168.0.20",
         open:true,
         hot:true,
+        proxy:{
+            '/ai-tools':'http://1.201.8.82:9996'
+        }
     }
 }
 
