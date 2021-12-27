@@ -4,37 +4,32 @@ import faker from 'faker';
 const initiallState={
     createdStory:[
         {
-            id:12121621,
-            inputType:'text'
-            ,inputText:'폰트실험중...'
-            ,outputText:'멀어지는 박쥐를 보고 있던 할머니는 고개를 돌려 손자 알보르를 쳐다보았다. 박쥐를 함부로 죽이면 안 된단다.  에이, 박쥐는 더럽고 불길하잖아요. 치사하기도 하구요.'
+            id:12121621
+            ,inputType:'text'
+            ,inputText:['헨젤과 그레텔 외전','일곱 살 현정이와 다섯 살 가람이는 외로운 남매였다. 두 남매의 부모는 자기 하나 앞가림하기 힘든 철없고 어린 부부였다. 자식인 현정이와 가람이를 책임지고 건사할 능력도 의욕도 떨어진지 오래였고, 늘 가난에 허덕였다. 어느새 부부는 술과 게임으로 도피했다. 얼마 남지 않은 생활비를 또다시 술과 게임 아이템을 사는 데에 탕진한 부부는 눈이 마주치자마자 싸움을 벌였다. 부모의 싸움에 이골이 난 현정과 가람은 늘 그랬듯 좁은 방으로 도망쳐 조용히 서로의 귀를 막아주었다. ']
+            ,outputText:'다음날 부부는 소풍을 위해 가방을 들고 집을 나서고, 현정과 가람은 거실에 고양이 귀가 달린 그릇에 집 열쇠를 두고 부모를 따라 집을 나섰다. 그렇게 좁고 더러웠지만 그래도 유일한 안식처였던 집을 뒤로 하고, 그들을 버리려는 부모를 따라 산으로 올라간다. 숲속으로 가 가족끼리 행복한 시간을 보내는 척 하던 부부는 조용히 현정과 가람이를 두고 사라진다. 현정이와 가람이는 부모가 자신들을 두고 사라지는 것을 알지만 눈물을 참으며 모른 척 한다. '
         },
         {
             id:12345678,
             inputType:'text'
-            ,inputText:'폰트실험중...'
-            ,outputText:'아, 들어가야지.  어? 잠시만…….  나에게 다가오던 우진은 내 앞에 서 있는 여자를 보고는 고개를 갸우뚱하며 걸음을 멈췄다. 아는 사이인가?'
+            ,inputText:'한동안 방황해 온 현정과 가람은 피곤해 길을 잃는다. 그들은 아무것도 먹지 않았기 때문에 배가 고팠고, 낯선 사람들을 두려워했기 때문에 매우 고통스러웠다. 어두운 골목에 숨어 있던 현정과 가람은 쓰레기통에서 발견한 빵 등 물건들을 먹으며 낯선 사람들을 무서워해 달아났다.'
+            ,outputText:'그들은 도시를 돌아다녔고, 낯선 사람들로부터 도망치고 있었다. 그러다 현정과 가람은 이상한 모자를 쓰고 있던 낯선 남자를 보았다. 그는 마술사였다. '
         },
         {
             id:14321234,
-            inputType:'text'
-            ,inputText:'폰트실험중...'
-            ,outputText:'에 서 있는 여자를 보고는 고개를 갸우뚱하며 걸음을 멈췄다. 아는 사이인가?왔어?를 말한 화자는 누구일까? 그녀는 바로 나였다.내가 말했다.  아니야, 아니야. 내가 먼저 말했잖아.'
-        },
-        {
-            id:23454123,
             inputType:'image'
-            ,inputText:faker.image.imageUrl()
-            ,outputText:'이런 상황은 나도 처음이라 이러지도 저러지도 못하고 있었는데 뒤에서 "주하린!"하고 나를 부르는 소리가 들렸다. 뒤를 돌아보자 고등학교 동창이자 곧 결혼 예정인 남자친구 우진이 이쪽으로 걸어오고 있었다. 왔어? 안 들어가고 뭐 해? 아, 들어가야지.  어? 잠시만…….  나에게 다가오던 우진은 내 앞에 서 있는 여자를 보고는 고개를 갸우뚱하며 걸음을 멈췄다. 아는 사이인가?'
-        },
+            ,inputText:'/assets/img/sampleImg.png'
+            ,outputText:'부모에게 버림받은 현정과 가람은 그를 겁내하며 도움을 받고 싶지 않다고 말했다. 충격을 받은 마술사는 자신이 나쁜 마술사가 아니라고 말했다. 그들은 마침내 마법학교처럼 보이는 곳에 도착했고, 마술사가 좋은 사람이라는 것을 알게 된 현정과 가람은 마술사를 따라 건물 안으로 들어갔다. '
+        }
     ],
     creatingStory:{
         id:23454122,
         inputType:'text',
-        inputText:'안녕하세요!!',
+        inputText:'마술사가 잠시 자리를 비운 사이 사무실에 남겨진 현정과 가람은 다시 버림받을까 봐 걱정하다가 기다리는 동안 울었다. 다시 돌아온 마술사는 자신이 나쁘지 않으며 그들을 돌볼 것이라고 말했다. ',
         index:0,
         storyMode:'story',
-        outputText:['안녕하세요 김우석 입니다','이 서비스는 AI 던전 한글판 입니다','많이들 사용 바랍니다!!']
+        outputText:['그는 그들이 다시는 그런 고통을 겪지 않도록 하겠다고 약속했고, 또한 결코 그들을 떠나지 않겠다고 약속했다. 앞으로 어떻게 될지 걱정하던 현정과 가람은 앞으로 그들을 돌보겠다고 약속한 마술사와 함께 지내기로 했다.'],
+        nextOutputArr:[],
     },
     loadingStory:false,
     loadedStory:false,
@@ -50,6 +45,8 @@ const initiallState={
     newStoryLoaded:false,
     newStoryLoading:false,
     newStoryError:null,
+    showEntireStory:false,
+    editEntireStory:false,
 }
 
 export const LOAD_STORY_REQUEST = 'LOAD_STORY_REQUEST';
@@ -68,24 +65,34 @@ export const DECODE_AND_UPLOAD_FAILURE ='DECODE_AND_UPLOAD_FAILURE';
 export const CHANGE_LAST_STORY_INDEX_REQUEST = 'CHANGE_LAST_STORY_INDEX_REQUEST';
 export const CHANGE_LAST_STORY_INDEX_SUCCESS = 'CHANGE_LAST_STORY_INDEX_SUCCESS';
 export const CHANGE_LAST_STORY_INDEX_ERROR = 'CHANGE_LAST_STORY_INDEX_ERROR';
+export const SHOW_ENTIRE_STORY = 'SHOW_ENTIRE_STORY';
+export const EDIT_ENTIRE_STORY = 'EDIT_ENTIRE_STORY';
+export const INIT_REQUEST = 'INIT_REQUEST'
+
 export const loadStory = (data)=>{
     return{type:LOAD_STORY_REQUEST,data}
-}
-
-const dummpyStoryLine = (data)=>{
-    return{
-        id:Date.now(),
-        inputType:data.inputType,
-        inputText:data.inputText,
-        index:0,
-        storyMode:data.storyMode,
-        outputText:[data.outputText]
-    };
 }
 
 const reducer = (state=initiallState,action)=>{
     return produce(state,(draft)=>{
         switch (action.type){
+            case INIT_REQUEST:{
+                if(draft.decodeAndUploadLoading||draft.loadingStory||draft.newStoryLoading||draft.showEntireStory){
+                    break;
+                }else{
+                    draft.createdStory=[];
+                    draft.creatingStory=null;
+                }
+                break;
+            }
+            case EDIT_ENTIRE_STORY:{
+                draft.editEntireStory=!draft.editEntireStory;
+                break;
+            }
+            case SHOW_ENTIRE_STORY:{
+                draft.showEntireStory=!draft.showEntireStory;
+                break;
+            }
             case DECODE_AND_UPLOAD_REQUEST:{
                 draft.decodeAndUploadLoading=true;
                 draft.decodeAndUploadLoaded=false;
@@ -145,7 +152,7 @@ const reducer = (state=initiallState,action)=>{
                 draft.creatingStory={
                     id:Date.now(),
                     inputType:action.data.inputType,
-                    inputText:action.data.inputText,
+                    inputText:action.data.isInputEqualsOutput?null:action.data.inputText,
                     storyMode:action.data.storyMode,
                     index:0,
                     outputText:[''],
@@ -188,7 +195,12 @@ const reducer = (state=initiallState,action)=>{
             }
 
             case CHANGE_LAST_STORY_INDEX_SUCCESS:{
-                draft.creatingStory.outputText.push(action.data);
+                if(!action.isOutput){
+                    console.log(action.data);
+                    draft.creatingStory.outputText.push(action.data);
+                }else{
+                    draft.creatingStory.nextOutputText = action.data;
+                }
                 draft.creatingStory.index+=1;
                 draft.newStoryLoaded=true;
                 draft.newStoryLoading=false;

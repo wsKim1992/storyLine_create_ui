@@ -1,7 +1,7 @@
 import React,{useState,useCallback,useRef, useEffect} from 'react';
 import {CHANGE_STORYLINE,LOAD_STORY_SUCCESS,LOAD_STORY_FAILURE,CHANGE_LAST_STORY_INDEX,CHANGE_LAST_STORY_INDEX_REQUEST} from '../../../reducers/storyline';
 import PropTypes from 'prop-types';
-import {Card,Image,Button} from 'antd';
+import {Card,Image,Button, Row, Col} from 'antd';
 import {SendOutlined,MessageOutlined,LeftCircleOutlined,RightCircleOutlined} from '@ant-design/icons';
 import styled from 'styled-components';
 import { useDispatch,useSelector } from 'react-redux';
@@ -22,8 +22,8 @@ const ChangeTextOutPutButtonWrap = styled.span`
     flex-direction:row;
     align-items : center;
     justify-content:center;
-    width : 2.25%;
-    height : 95%;
+    width : 35px;
+    height : 23px;
 `;
 const ChangeTextOutPutButton = styled(Button)`
     width:100%;
@@ -120,16 +120,19 @@ const SingleStoryLine=({data,isLastOne})=>{
     },[]):null;
 
     const onClickOutputText = useCallback(()=>{
+        if(isLastOne&&loadingStory){
+            return false;
+        }
         if(!editMode){
             setEditMode(true);
         }
-    },[editMode]);
+    },[editMode,loadingStory,isLastOne]);
 
     const onEditOutput = useCallback(()=>{
         const dataToSend = isLastOne?{id:data.id,outputText,flag:true}:{id:data.id,outputText};
         dispatch({type:CHANGE_STORYLINE,data:dataToSend});
         setEditMode(false);
-    },[outputText]);
+    },[outputText,isLastOne]);
 
     const onChangeOutputText = (evt)=>{
         setOutputText(evt.target.value);
@@ -142,37 +145,44 @@ const SingleStoryLine=({data,isLastOne})=>{
                     data.inputType==='text'
                     &&
                     <InputStoryContextDiv style={{display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-                        <span>
-                            <MessageOutlined/>&nbsp;   
-                            {data.inputText}
-                        </span>
-                        {
-                            !editMode
-                            &&
-                            isLastOne
-                            &&
-                            (
-                                <div style={{width:'15.5%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-                                    <span>
-                                        {creatingStory.outputText&&`${creatingStory.index+1}/${creatingStory.outputText.length}`}
-                                    </span>
-                                    <span>
-                                        <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginLeft:'2.5px'}}>
-                                            <LeftCircleOutlined></LeftCircleOutlined>
-                                        </Button>
-                                        <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                                            <RightCircleOutlined></RightCircleOutlined>
-                                        </Button>
-                                    </span>
-                                </div >
-                            )
-                        }
-                        {
-                            editMode&&
-                            <ChangeTextOutPutButtonWrap>
-                                <ChangeTextOutPutButton onClick={onEditOutput}><SendOutlined /></ChangeTextOutPutButton>  
-                            </ChangeTextOutPutButtonWrap>
-                        }
+                        <Row style={{width:'100%',height:'auto'}}>
+                            <Col span={(isLastOne?(editMode?23:20):23)}>
+                                {data.inputText&&
+                                <span>
+                                    <MessageOutlined/>&nbsp;       
+                                    {Array.isArray(data.inputText)?(<><p>{data.inputText[0]}</p><p>{data.inputText[1]}</p></>):data.inputText}
+                                </span>}
+                            </Col>
+                            <Col style={{ display: 'flex',flexDirection: 'column-reverse'}} span={(isLastOne?(editMode?1:4):1)}>
+                                {
+                                    !editMode
+                                    &&
+                                    isLastOne
+                                    &&
+                                    (
+                                        <div style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly',width:'auto'}}>
+                                            <span>
+                                                {creatingStory.outputText&&`${creatingStory.index+1}/${creatingStory.outputText.length}`}
+                                            </span>
+                                            <span>
+                                                <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginLeft:'2.5px'}}>
+                                                    <LeftCircleOutlined></LeftCircleOutlined>
+                                                </Button>
+                                                <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                                                    <RightCircleOutlined></RightCircleOutlined>
+                                                </Button>
+                                            </span>
+                                        </div >
+                                    )
+                                }
+                                {
+                                    editMode&&
+                                    <ChangeTextOutPutButtonWrap >
+                                        <ChangeTextOutPutButton onClick={onEditOutput}><SendOutlined /></ChangeTextOutPutButton>  
+                                    </ChangeTextOutPutButtonWrap>
+                                }
+                            </Col>
+                        </Row>
                     </InputStoryContextDiv>
                 }
                 {
@@ -194,13 +204,18 @@ const SingleStoryLine=({data,isLastOne})=>{
                                 &&
                                 isLastOne
                                 &&
-                                <div>
-                                    <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginRight:'2.5px'}}>
-                                        <LeftCircleOutlined></LeftCircleOutlined>
-                                    </Button>
-                                    <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                                        <RightCircleOutlined></RightCircleOutlined>
-                                    </Button>
+                                <div style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between',width:'auto'}}>
+                                    <span>
+                                        {creatingStory.outputText&&`${creatingStory.index+1}/${creatingStory.outputText.length}`}
+                                    </span>
+                                    <span>
+                                        <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginRight:'2.5px'}}>
+                                            <LeftCircleOutlined></LeftCircleOutlined>
+                                        </Button>
+                                        <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                                            <RightCircleOutlined></RightCircleOutlined>
+                                        </Button>
+                                    </span>
                                 </div>
                             }
                             {
@@ -222,7 +237,7 @@ const SingleStoryLine=({data,isLastOne})=>{
                     {isLastOne&&(loadingStory||newStoryLoading)
                         &&
                         (<OutputStoryContextDiv style={{width:'100%',backgroundColor:'#454545',position:'absolute',opacity:'0.55'}}>
-                            <Image width={50} height={50} src={"/assets/img/1494-unscreen.gif"}/>
+                            <Image preview={false} width={100} height={100} src={"/assets/img/loading2.gif"}/>
                         </OutputStoryContextDiv>)
                     }
                     {!editMode?
@@ -233,8 +248,8 @@ const SingleStoryLine=({data,isLastOne})=>{
                             </>
                         ) 
                     }
-                    
                 </OutputStoryContextDiv>
+                
             </StyledCardComponent>
         </React.Fragment>
     )

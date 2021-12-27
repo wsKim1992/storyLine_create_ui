@@ -1,7 +1,6 @@
-import React,{memo, useEffect} from 'react';
+import React,{memo} from 'react';
 import SingleStoryLine from './SingleStoryLine';
 import styled from 'styled-components';
-import faker from 'faker';
 import { useSelector } from 'react-redux';
 
 /**
@@ -12,13 +11,13 @@ import { useSelector } from 'react-redux';
 
 const StoryLineWrap = styled.div`
     width:90%;
-    height:95%;
+    height:100%;
     font-family: 'Nanum Myeongjo';
 `;
 
 const ConversationComponent = memo(()=>{
     const {createdStory,creatingStory} = useSelector((state)=>state.storyline);
-    
+    console.log("ConversationComponent");
     return(
         <React.Fragment>
             <StoryLineWrap>

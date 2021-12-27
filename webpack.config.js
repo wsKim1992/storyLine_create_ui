@@ -7,6 +7,8 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const mode = process.env.NODE_ENV;
 const entryFile = path.resolve(__dirname,"src","client.jsx");
 const outputDir = path.resolve(__dirname,"dist");
+const fs = require('fs');
+
 
 const config = {
     mode:mode,
@@ -92,12 +94,17 @@ const config = {
                 watch:true,
             }
         ],
-        port:4000,
-        host:"192.168.0.20",
+        https:{
+            key:fs.readFileSync('../httpsDocument/server.key'),
+            cert:fs.readFileSync('../httpsDocument/server.crt'),
+        },
+        historyApiFallback:true,
+        port:9997,
+        host:"1.201.8.82",
         open:true,
         hot:true,
         proxy:{
-            '/ai-tools':'http://1.201.8.82:9996'
+            '/ai-tools':'http://localhost:9996'
         }
     }
 }

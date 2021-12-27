@@ -5,18 +5,44 @@ import {LOAD_STORY_REQUEST,LOAD_STORY_SUCCESS,LOAD_STORY_FAILURE
     ,CHANGE_LAST_STORY_INDEX_SUCCESS,ENCODE_AND_SAVE_FAILURE, CHANGE_LAST_STORY_INDEX_ERROR} from '../reducers/storyline';
 import axios from 'axios';
 
+const genreApiFuncList = {
+    '일반':'generate_story',
+    '로맨스':'gpt2_genre_romance',
+    '판타지':'gpt2_genre_fantasy',
+    '미스테리':'gpt2_genre_mystery',
+    '무협':'gpt2_genre_martial'
+}
+
 const loadStoryAPI =(data)=>{
     const formData = new FormData();
-    formData.append('function',`generate_${data.storyMode}`);
+    formData.append('function',genreApiFuncList[data.genre]);
     formData.append('input_text',data.inputText);
+    formData.append('tokens',128);
     return axios.post('/ai-tools',formData);
+}
+
+const loadStoryWithImageAPI = (data)=>{
+    const dataDecodeBinary = window.atob(data.inputText.split(",")[1]);
+    let binaryCodeArr = [];
+    for(let i =0;i<dataDecodeBinary.length;i++){binaryCodeArr.push(dataDecodeBinary.charCodeAt(i))};
+    const imageFileBlob = new Blob([new Uint8Array(binaryCodeArr)],{'type':'image/jpeg'});
+    const formData = new FormData();
+    formData.append("function","image_captioning");
+    formData.append("image",imageFileBlob,'filename');
+    formData.append('input_text','');
+    const header = {headers:{'Content-Type':'multipart/form-data'}};
+    return axios.post('/ai-tools',formData,header);
 }
 
 function* loadStory(action){
     try{
-        const output = yield call(loadStoryAPI,action.data);
-        console.log(output.data['output_ko']);
-        const outputText = action.data.storyMode==='talk'?output.data['output_ko'].split("\n\n").map(v=>`\"${v}\"`):output.data['output_ko']; 
+        const {inputType,inputText,genre}=action.data;
+        console.log(`inputType : ${inputType}`);
+        console.log(`inputText : ${inputText}`);
+        console.log(`input Genre : ${genreApiFuncList[genre]}`);
+        const output = inputType ==='image'?yield call(loadStoryWithImageAPI,action.data):yield call(loadStoryAPI,action.data);
+        const outputText = action.data.storyMode==='talk'?output.data['output_ko'].split("\n\n").map(v=>`\"${v}\"`):output.data['output_ko'];
+        console.log(output.data); 
         yield put({
             type:LOAD_STORY_SUCCESS,
             data:{...action.data,outputText}
@@ -24,7 +50,7 @@ function* loadStory(action){
     }catch(err){
         yield put({
             type:LOAD_STORY_FAILURE,
-            error:err.response.data,
+            error:'err.response.data',
         });
     }
 }
@@ -83,15 +109,19 @@ function* watchDecodeAndUpload(){
 
 function callChangeLastStoryAPI(data){
     const formData = new FormData();
-    formData.append('function',`generate_${data.storyMode}`);
+    formData.append('function',genreApiFuncList[data.genre]);
     formData.append('input_text',data.inputText);
+    formData.append('tokens',128);
     return axios.post('/ai-tools',formData);
 }
 
 function* changeLastStory(action){
+    const {inputType,inputText,genre}=action.data;
+    console.log(inputType);
     try{
-        const outputResp = yield call(callChangeLastStoryAPI,action.data);
-        yield put({type:CHANGE_LAST_STORY_INDEX_SUCCESS,data:outputResp.data['output_ko']});
+        const outputResp = inputType ==='image'?yield call(loadStoryWithImageAPI,action.data): yield call(callChangeLastStoryAPI,action.data);
+        console.log(outputResp.data);
+        yield put({type:CHANGE_LAST_STORY_INDEX_SUCCESS,data:outputResp.data['output_ko'],isOutput:action.data.isOutput});
     }catch(err){
         console.error(err);
         yield put({type:CHANGE_LAST_STORY_INDEX_ERROR,data:err.response.data});

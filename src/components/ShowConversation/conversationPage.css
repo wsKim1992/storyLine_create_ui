@@ -27,3 +27,8 @@ body{
 #inputComponent #searchComponent input{
     background-color: #17193b;
 }
+.clicked_button{
+    background-color: #454545;
+    color:#fff;
+}
+

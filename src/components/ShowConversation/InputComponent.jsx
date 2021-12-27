@@ -1,22 +1,92 @@
-import React,{useState,useRef,useEffect, useCallback} from 'react';
+import React,{useState,useRef,useMemo,useEffect, useCallback} from 'react';
 import {Button,Row,Col,Input,Image} from 'antd';
-import {SendOutlined,LeftCircleOutlined,RightCircleOutlined
-,RedoOutlined,PictureOutlined,FileAddOutlined,SaveOutlined} from '@ant-design/icons';
+import {SendOutlined,CloseOutlined,FilePdfOutlined,LeftCircleOutlined,RightCircleOutlined,StepForwardOutlined
+,RedoOutlined,PictureOutlined,FileAddOutlined,SaveOutlined,AudioOutlined,MenuOutlined, FormOutlined} from '@ant-design/icons';
 import './conversationPage.css';
-import {LOAD_STORY_REQUEST,ENCODE_AND_SAVE_REQUEST,ENCODE_AND_SAVE_INIT,DECODE_AND_UPLOAD_REQUEST, CHANGE_LAST_STORY_INDEX_REQUEST} from '../../../reducers/storyline';
+import {INIT_REQUEST,LOAD_STORY_REQUEST,ENCODE_AND_SAVE_REQUEST,ENCODE_AND_SAVE_INIT,DECODE_AND_UPLOAD_REQUEST, CHANGE_LAST_STORY_INDEX_REQUEST, SHOW_ENTIRE_STORY, EDIT_ENTIRE_STORY} from '../../../reducers/storyline';
+import {CHANGE_GENRE} from '../../../reducers/storyData';
 import { useDispatch,useSelector } from 'react-redux';
 import ImageUpload from './ImageUpload';
+import RecordComponent from './RecordComponent';
+import styled from 'styled-components';
 
 const { Search } = Input;
 
-const InputComponent = ()=>{
+const StyledMouseDiv = styled.div`
+    position:absolute;
+    width:50px;
+    height:50px;
+    z-index:10;
+    top:0px;
+    left:0px;
+    margin:-25px -25px;
+`;
+
+const StyledCol=styled(Col)`
+    height:100%;
+    width:70px;
+`;
+
+const StyledButton = styled(Button)`
+    border-radius:5px;
+    border:none;
+    background-color:rgb(34, 34, 34);
+    font-size:8.8px;
+    height:100%;
+    color:#fff;
+    width:100%;
+    &:hover{
+        background-color:#454545;
+        color:#fff;
+    }
+    &:focus{
+        background-color:rgb(34, 34, 34);
+        color:#fff;
+    }
+`;
+
+const StyledDiv = styled.div`
+    position:relative;
+    border:1px solid #454545;
+    width:100%;
+    height:auto;
+    padding: 10px 0;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    cursor:url(./assets/img/EkhxNgXUUAEyO__.jpg),auto;
+`
+
+const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF})=>{
     const dispatch = useDispatch();
-    const {encodedStoryLine,loadingStory,loadedStory,createdStory,creatingStory,encodeAndSaveLoaded,encodeAndSaveLoading} = useSelector((state)=>state.storyline);
+    const {editEntireStory,encodedStoryLine,loadingStory,loadedStory,newStoryLoading,createdStory,creatingStory,encodeAndSaveLoaded,encodeAndSaveLoading,showEntireStory} = useSelector((state)=>state.storyline);
+    const {movieType}=useSelector(state=>state.storyData.storyData);
     const modeList = ['스토리','대화'];
-    const modeMessage = ['What do you do?','What do you say?','What happens next?'];
+    const modeMessage = ['스토리 생성에 필요한 입력을 넣어주세요!','대화생성을 위한 입력을 넣어 주세요!','What happens next?'];
     const [modeIdx,setModeIdx]=useState(0);
-    const [message,setMessage] = useState('');
+    //const [message,setMessage] = useState('');
     const [inputType,setInputType] = useState('text');
+    const genreList = ['일반','로맨스','판타지','미스테리','무협'];
+    const [genreIndex,setGenreIndex] = useState(0);
+    const btnListWrapRef = useRef(null);
+    const btnListRef = useRef(null);
+    const [isClickedBtnList , setIsClickedBtnList]=useState(false);
+    const [prevBtnListPointerX,setPrevBtnListPointerX]=useState(-1);
+    const mouseComponentRef=useRef(null);
+    const inputComponentRef=useRef(null);
+
+    const onClickGenre = useCallback(()=>{
+        if(genreIndex===genreList.length-1){
+            setGenreIndex(0);
+        }else{
+            setGenreIndex(prevVal=>prevVal+1);
+        }
+    },[genreIndex])
+
+    const diableInput=useMemo(()=>{
+        return showEntireStory||loadingStory;
+    },[showEntireStory,loadingStory])
 
     const saveFile = (encodedText)=>{
         const blob = new Blob([encodedText],{type:'text/plain'});
@@ -29,6 +99,15 @@ const InputComponent = ()=>{
         console.log(fileURL);
         window.URL.revokeObjectURL(fileURL);
     }
+   
+    useEffect(()=>{
+        const index = genreList.findIndex((ele)=>ele===movieType)
+        setGenreIndex(index===-1?0:index); 
+    },[])
+
+    useEffect(()=>{
+        dispatch({type:CHANGE_GENRE,data:genreList[genreList]});
+    },[genreIndex])
 
     useEffect(()=>{
         if(encodeAndSaveLoaded&&!encodeAndSaveLoading){
@@ -54,20 +133,19 @@ const InputComponent = ()=>{
     }
 
     const onChangeMessage = (e)=>{
-        console.log("onChangeMessage");
         setMessage(e.target.value);
     }
 
     const onSearch=(value)=>{
         if(message===''){return false;}
         const storyMode = modeList[modeIdx]==='스토리'?'story':'talk';
-        dispatch({type:LOAD_STORY_REQUEST, data:{storyMode,inputType:inputType==='file'?'image':'text',inputText:message}});
+        dispatch({type:LOAD_STORY_REQUEST, data:{genre:genreList[genreIndex],storyMode,inputType:inputType==='image'?'image':'text',inputText:message,isInputEqualsOutput:false}});
     }
 
     const changeInputType = (e)=>{
         e.stopPropagation();
         if(inputType==='text'){
-            setInputType('file');
+            setInputType('image');
         }else{
             setInputType('text');
         }
@@ -103,59 +181,243 @@ const InputComponent = ()=>{
     }
 
     const onClickRetry = useCallback(()=>{
-        const inputData={inputText:creatingStory.inputText,storyMode:creatingStory.storyMode};
+        if(!creatingStory)return false;
+        const inputData={inputType:creatingStory.inputText?inputType:'text',genre:genreList[genreIndex],inputText:creatingStory.inputText?creatingStory.inputText:createdStory[createdStory.length-1].outputText,storyMode:creatingStory.storyMode};
         dispatch({type:CHANGE_LAST_STORY_INDEX_REQUEST,data:inputData});
-    },[creatingStory]);
+    },[creatingStory,createdStory]);
+
+    const onClickSpeak = useCallback(()=>{
+        if(!isSpeak){
+            setMessage('');
+            setIsSpeak(true);
+        }else{
+            setIsSpeak(false);
+        }
+    },[isSpeak])
+
+    const onClickShowEntire = useCallback(()=>{
+        if(!editEntireStory){
+            btnListRef.current.style.right=`0px`;
+        }
+        if(createdStory.length===0&&creatingStory===null){
+            alert("스토리를 생성해 주세요!");
+            return false;
+        }
+        dispatch({type:SHOW_ENTIRE_STORY});
+    },[createdStory,creatingStory,editEntireStory]);
+
+    const onClickNext = useCallback(()=>{
+        const storyMode = modeList[modeIdx]==='스토리'?'story':'talk';
+        const inputText= creatingStory.outputText[creatingStory.index];
+        const data = {genre:genreList[genreIndex],storyMode,inputType:'text',inputText,isInputEqualsOutput:true};
+        dispatch({type:LOAD_STORY_REQUEST, data});
+    },[modeIdx,creatingStory,genreIndex,inputType]);
+
+    const onClickWrapRef=(e)=>{
+        e.stopPropagation();
+        const {left} = btnListRef.current.getBoundingClientRect();
+        
+        const offsetX= e.clientX;
+        setIsClickedBtnList(true);
+        setPrevBtnListPointerX(offsetX);
+        
+    }
+
+    const onMouseMove=(e)=>{
+        if(isClickedBtnList){
+            const offsetX=e.clientX;
+            const right = parseFloat(btnListRef.current.style.right.split('px')[0]);
+            const diff = prevBtnListPointerX-offsetX;
+            if(btnListRef.current.getBoundingClientRect().width+(diff+right)<=btnListWrapRef.current.getBoundingClientRect().width){
+                btnListRef.current.style.right = `${right}px`;
+                return false;    
+            }else if(btnListRef.current.getBoundingClientRect().width+(btnListRef.current.getBoundingClientRect().x-diff)<=btnListWrapRef.current.getBoundingClientRect().width){
+                btnListRef.current.style.right = `0px`;
+                return false;
+            }
+            btnListRef.current.style.right = `${right+diff}px`;
+        }else{
+            return false;
+        }
+    }
+
+    const onMouseUp = useCallback((e)=>{
+        setPrevBtnListPointerX(-1);
+        setIsClickedBtnList(false);
+    },[])
+
+    const onMouseOut=useCallback((e)=>{
+        setPrevBtnListPointerX(-1);
+        setIsClickedBtnList(false);
+    },[])
+
+    const onTouchStart=(e)=>{
+        const offsetX= e.changedTouches[0].clientX;
+        setIsClickedBtnList(true);
+        setPrevBtnListPointerX(offsetX);
+    }
+
+    const onTouchMove=(e)=>{
+        if(isClickedBtnList){
+            const offsetX=e.changedTouches[0].clientX;
+            const right = parseFloat(btnListRef.current.style.right.split('px')[0]);
+            const diff = prevBtnListPointerX-offsetX;
+            if(btnListRef.current.getBoundingClientRect().width+(diff+right)<=btnListWrapRef.current.getBoundingClientRect().width-20){
+                btnListRef.current.style.right = `${right}px`;
+                return false;    
+            }else if(btnListRef.current.getBoundingClientRect().width+(btnListRef.current.getBoundingClientRect().x-diff)<=btnListWrapRef.current.getBoundingClientRect().width){
+                btnListRef.current.style.right = `0px`;
+                return false;
+            }
+            btnListRef.current.style.right = `${right+diff}px`;
+        }else{
+            return false;
+        }
+    }
+
+    const onTouchEnd = useCallback((e)=>{
+        setPrevBtnListPointerX(-1);
+        setIsClickedBtnList(false);
+    },[]);
+
+    const onClickReset = useCallback(()=>{
+        dispatch({type:INIT_REQUEST});
+    },[]);
+
+    const onClickPDF = useCallback(()=>{
+        setDownloadInPDF(prevVal => !prevVal);
+    },[])
+
+    const onMouseEnterDiv = (e)=>{
+        inputComponentRef.current.style.cursor='none';
+        const x = inputComponentRef.current.getBoundingClientRect().x;
+        const y = inputComponentRef.current.getBoundingClientRect().y;
+        const offsetX = e.clientX;
+        const offsetY = e.clientY;
+        mouseComponentRef.current.style.top=`${offsetY-y}px`;
+        mouseComponentRef.current.style.left=`${offsetX-x}px`;
+    }
+
+    const onMouseMoveDiv = (e)=>{
+        const x = inputComponentRef.current.getBoundingClientRect().x;
+        const y = inputComponentRef.current.getBoundingClientRect().y;
+        const offsetX = e.clientX;
+        const offsetY = e.clientY;
+        mouseComponentRef.current.style.top=`${offsetY-y}px`;
+        mouseComponentRef.current.style.left=`${offsetX-x}px`;
+    }
+    
+    const onMouseLeaveDiv=(e)=>{
+        //mouseComponentRef.current.style.cursor='default';
+    }
 
     return( 
         <React.Fragment>
-            <div style={{borderRadius:'10px',border:'1px solid #454545',width:'100%',height:'39.5%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                <Row justify="end" style={{width:'90%',height:'80%',marginRight:'28px',padding:'0 25px'}}>
-                    <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
-                        <Button onClick={onClickRetry} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+            <div ref={btnListWrapRef} style={{overflow:'hidden',position:'relative',borderRadius:'10px',border:'1px solid #454545',width:'100%',height:'47.5%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                <Row onTouchEnd={onTouchEnd} onTouchMove={onTouchMove} onTouchStart={onTouchStart} onMouseOut={onMouseOut} onMouseUp={onMouseUp} onMouseMove={onMouseMove} onMouseDown={onClickWrapRef} ref={btnListRef} gutter={[1.5,1.5]} wrap={false} justify="end" style={{position:'absolute',right:'0',overflow:'hidden',width:'641px',height:'80%',padding:'5.5px 5.5px'}}>
+                    {showEntireStory&&
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickPDF} >
+                            <FilePdfOutlined /> 
+                            <p>PDF로 <br/>변환</p>
+                        </StyledButton>
+                    </StyledCol>
+                    }
+                    {!showEntireStory&&
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickReset} >
+                            <FormOutlined />
+                            <p>새로쓰기</p>
+                        </StyledButton>
+                    </StyledCol>
+                    }
+                    {!showEntireStory&&
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickSpeak}>
+                            <AudioOutlined />
+                            <p>SPEAK</p>
+                        </StyledButton>
+                    </StyledCol>
+                    }
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickShowEntire}>
+                            {showEntireStory?<CloseOutlined />:<MenuOutlined />}
+                            <p>{showEntireStory?
+                                'CLOSE':
+                                'VIEW'}
+                            </p>
+                        </StyledButton>
+                    </StyledCol>
+                    {!showEntireStory&&
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickNext}>
+                            <StepForwardOutlined />
+                            <p>NEXT</p>
+                        </StyledButton>
+                    </StyledCol>
+                    }
+                    {!showEntireStory&&
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickGenre}>
+                            <p style={{marginBottom:'0px'}}>장르</p>
+                            <p>{genreList[genreIndex]}</p>
+                        </StyledButton>
+                    </StyledCol>
+                    }
+                    {!showEntireStory&&
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickRetry} >
                             <RedoOutlined></RedoOutlined>
                             <p>RETRY</p>
-                        </Button>
-                    </Col>
-                    <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
-                        <input style={{display:"none"}} type="file" id="savePath" webkitdirectory/>
-                        <Button onClick={onClickSave} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                        </StyledButton>
+                    </StyledCol>
+                    }
+                    {!showEntireStory&&
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickSave} >
                             <SaveOutlined />
                             <p>SAVE</p>
-                        </Button>
-                    </Col>
-                    <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
+                        </StyledButton>
+                    </StyledCol>
+                    }
+                    {!showEntireStory&&
+                    <StyledCol span={1.5}>
                         <input id="readNSTFile" onChange={onClickUpload} type="file" style={{display:'none'}}/>
-                        <Button style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                        <StyledButton>
                             <label htmlFor={"readNSTFile"}>
                                 <FileAddOutlined/>
                                 <p>OPEN</p>
                             </label>
-                        </Button>
-                    </Col>
+                        </StyledButton>
+                    </StyledCol>
+                    }
                     {
+                        !showEntireStory&&
                         modeList[modeIdx]==='스토리'&&
-                        <Col style={{height:'100%',marginLeft:'1px'}} span={1.5}>
-                            <Button onClick={changeInputType} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                                
+                        <StyledCol span={1.5}>
+                            <StyledButton onClick={changeInputType}>
                                     <PictureOutlined />
                                     <p>
                                         {
-                                            inputType==='file'?
+                                            inputType==='image'?
                                             'TEXT':'IMAGE'
                                         }
                                     </p>
-                                
-                            </Button>
-                        </Col>
+                            </StyledButton>
+                        </StyledCol>
                     }
                 </Row>
             </div>
-            <div id="inputComponent" style={{borderRadius:'10px',border:'1px solid #454545',width:'100%',height:'auto',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
-                
-                <Row gutter={1.5} style={{width:'95%',height:'auto',display:'flex',flexDirection:'row',verticalAlign:'center',padding:'10px 0'}}>
+            <StyledDiv ref={inputComponentRef} 
+                onMouseLeave={(newStoryLoading||loadingStory)?onMouseLeaveDiv:null} 
+                onMouseEnter={(newStoryLoading||loadingStory)?onMouseEnterDiv:null} 
+                onMouseMove={(newStoryLoading||loadingStory)?onMouseMoveDiv:null}>
+                {(newStoryLoading||loadingStory)&&<StyledMouseDiv ref={mouseComponentRef}>
+                    <Image preview={false} src={"/assets/img/loading5.gif"} width={"100%"} height={"100%"}/>
+                </StyledMouseDiv>}
+                <Row gutter={1.5} style={{width:'95%',height:'65%',display:'flex',flexDirection:'row',verticalAlign:'center'}}>
                     <Col span={4}>
-                        <Button style={{backgroundColor:'rgba(35, 156, 158, 0.75)',width:'100%',height:'100%',borderRadius:'5px',border:'none'}} size="large" onClick={changeMode} type="primary">
+                        <Button disabled={diableInput} style={{fontSize:'10.5px',backgroundColor:'rgba(35, 156, 158, 0.75)',width:'100%',height:'100%',borderRadius:'5px',border:'none'}} onClick={changeMode} type="primary">
                             {modeList[modeIdx]}
                         </Button>    
                     </Col>
@@ -169,21 +431,27 @@ const InputComponent = ()=>{
                                     id="searchComponent"
                                     placeholder={modeMessage[modeIdx]}
                                     allowClear
-                                    enterButton={<SendOutlined />}
+                                    enterButton={<SendOutlined/>}
                                     size="large"
                                     onChange={onChangeMessage}
                                     onSearch={onSearch}
                                     loading={loadingStory}
+                                    value={message}
+                                    disabled={diableInput}
                                 />
                             )
                             :
                             (
-                                <ImageUpload message={message} setMessage={setMessage} onSearch={onSearch}/>
+                                <ImageUpload inputType={inputType} message={message} setMessage={setMessage} onSearch={onSearch}/>
                             )
                         }
                     </Col> 
                 </Row>
-            </div>
+                {
+                    isSpeak&&
+                    <RecordComponent setMessage={setMessage} setIsSpeak={setIsSpeak}/>
+                }
+            </StyledDiv>
         </React.Fragment>
     )
 }

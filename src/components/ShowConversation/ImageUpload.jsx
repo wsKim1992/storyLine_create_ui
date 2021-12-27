@@ -7,7 +7,6 @@ import { LOAD_STORY_REQUEST } from '../../../reducers/storyline';
 const fileBase64List = (file)=>{
     
     return new Promise((resolve,reject)=>{
-        console.log(file);
         if(file.type.match('image/*')){
             let reader = new FileReader();
             reader.onload = (evt)=>{
@@ -21,7 +20,8 @@ const fileBase64List = (file)=>{
 }
 
 
-const ImageUpload = ()=>{
+const ImageUpload = ({inputType})=>{
+    console.log(`inputType:${inputType}`);
     const [fileName,setFileName] = useState('');
     const dispatch = useDispatch();
     const onDrop = async(acceptedFiles,rejectedFiles)=>{
@@ -32,14 +32,19 @@ const ImageUpload = ()=>{
         try{
             const fileToBase64 = await fileBase64List(acceptedFiles[0]);
             setFileName(acceptedFiles[0].name);
-            dispatch({type:LOAD_STORY_REQUEST, data:{storyMode:'story',inputType:'image',inputText:fileToBase64}});
+            const image = new Image();
+            image.onload = ()=>{
+                
+            }
+            image.src = fileToBase64;
+            dispatch({type:LOAD_STORY_REQUEST, data:{storyMode:'story',inputType,inputText:fileToBase64}});
         }catch(err){
             alert(err.message);
         }
     }
 
     const renderedImgs = (
-        <p>
+        <p style={{height:'50%',margin:'0'}}>
             {fileName!==''?'':'파일을 업로드 해주세요!'}
         </p>
     )
@@ -51,7 +56,7 @@ const ImageUpload = ()=>{
                 style={{
                     display:"flex",
                     width:'100%',
-                    height:'50%',
+                    height:'100%',
                     borderRadius:'8.5px',
                     objectFit:"cover",
                     objectPosition:"center",
@@ -64,11 +69,11 @@ const ImageUpload = ()=>{
                 {({getRootProps,getInputProps,isDragAccept,isDragReject})=>{
                     
                     return (
-                        <div style={{display:'flex',width:'100%'}}>
-                            <div style={{display:'flex',flexDirection:'row',alignItems:'center',width:'100%',height:'100%',color:'#fff'}} {...getRootProps()}>
+                        <div style={{display:'flex',width:'100%',height:'36px'}}>
+                            <div style={{backgroundColor:'#fff',display:'flex',flexDirection:'row',alignItems:'center',width:'100%',height:'100%',color:'#000'}} {...getRootProps()}>
                                 <input style={{display:'block'}} {...getInputProps()}/>
                                 {isDragReject?
-                                    <p>잘못된 파일 업로드.</p>
+                                    <p style={{height:'50%'}}>잘못된 파일 업로드.</p>
                                     :renderedImgs
                                 }
                             </div>
