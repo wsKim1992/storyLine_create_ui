@@ -32,11 +32,6 @@ const ImageUpload = ({inputType})=>{
         try{
             const fileToBase64 = await fileBase64List(acceptedFiles[0]);
             setFileName(acceptedFiles[0].name);
-            const image = new Image();
-            image.onload = ()=>{
-                
-            }
-            image.src = fileToBase64;
             dispatch({type:LOAD_STORY_REQUEST, data:{storyMode:'story',inputType,inputText:fileToBase64}});
         }catch(err){
             alert(err.message);

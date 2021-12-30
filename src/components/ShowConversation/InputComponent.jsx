@@ -262,6 +262,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
             const offsetX=e.changedTouches[0].clientX;
             const right = parseFloat(btnListRef.current.style.right.split('px')[0]);
             const diff = prevBtnListPointerX-offsetX;
+            setPrevBtnListPointerX(offsetX);
             if(btnListRef.current.getBoundingClientRect().width+(diff+right)<=btnListWrapRef.current.getBoundingClientRect().width-20){
                 btnListRef.current.style.right = `${right}px`;
                 return false;    
