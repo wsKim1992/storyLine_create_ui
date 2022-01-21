@@ -1,10 +1,12 @@
 @charset "utf8";
 @import url("https://fonts.googleapis.com/css?family=Nanum+Gothic|Nanum+Myeongjo&display=swap&subset=korean");
 
+
 body,html{
     background-color: #000;
     height:100%;
     width:100%;
+    overflow:hidden;
 }
 #root{
     height:100%;

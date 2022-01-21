@@ -2,10 +2,11 @@ import produce from 'immer';
 
 const initialState={
     storyData:{
-        title:'',
-        author:'',
-        titlePage:'',
+        title:null,
+        author:null,
+        storypage_cover:null,
         movieType:'',
+        pageCoverDataURL:null,
     },
     storyDataLoading:false,
     storyDataLoaded:false,
@@ -27,9 +28,14 @@ const reducer = (state=initialState,action)=>{
                 break;
             }
             case STORYDATA_LOAD_SUCCESS:{
+                console.log(STORYDATA_LOAD_SUCCESS);
                 draft.storyDataLoading=false;
                 draft.storyDataLoaded=true;
-                draft.storyData = action.storyData;
+                draft.storyData.title = action.storyData?.title;
+                draft.storyData.author = action.storyData?.author;
+                draft.storyData.storypage_cover = action.storyData.storypage_cover;
+                draft.storyData.pageCoverDataURL=action.storyData.pageCoverDataURL;
+                console.log(action.storyData);
                 break;
             }
             case STORYDATA_LOAD_ERROR:{

@@ -6,21 +6,22 @@ function loadStoryDataAPI(data){
     return new Promise((resolve,reject)=>{
         setTimeout(()=>{
             resolve(data);
-        },3000);
+        },3);
     })
 }
 
 function* loadStoryData(action){
     try{
-        const storyData=yield call(loadStoryDataAPI,action.data);
-        yield put({type:STORYDATA_LOAD_SUCCESS,storyData});
+        
+        //const storyData=yield call(loadStoryDataAPI,action.data);
+        yield put({type:STORYDATA_LOAD_SUCCESS,storyData:action.data});
     }catch(err){
         console.log(err.response.data);
         yield put({type:STORYDATA_LOAD_ERROR,errorData:err.response.data});
     }
 }
 
-function* createStoryData(action){
+function* createStoryData(){
     yield takeLatest(STORYDATA_LOAD_REQUEST,loadStoryData);
 }
 

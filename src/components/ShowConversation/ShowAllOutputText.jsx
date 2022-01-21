@@ -21,7 +21,22 @@ const StyledDivElement = styled.div`
     padding:5px;
 `
 
-const ShowAllOutputText = ({showPDFRef})=>{
+const StyledImgWrap = styled.div`
+    width:100%;
+    height:auto;
+    background-color:#fff;
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    background-color:rgb(34, 34, 34);
+`
+const StyledImgContainer = styled.div`
+    width:49.72vh;
+    height:66.3vh;
+    background-color:#fff;
+`;
+
+const ShowAllOutputText = ({showPDFRef,pageCoverDataURL})=>{
     const {createdStory,creatingStory} = useSelector((state)=>state.storyline);
     const [fullText, setFullText]=useState(null);
 
@@ -41,9 +56,14 @@ const ShowAllOutputText = ({showPDFRef})=>{
 
     return(
         
-        <div ref={showPDFRef} style={{height:'100%',display:'flex',flexDirection:'row',justifyContent:'center',alignItems:'center'}}>
+        <div ref={showPDFRef} style={{height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
             <StyledEntireWrap>
-                {
+                <StyledImgWrap>
+                    <StyledImgContainer>
+                        <Image src={pageCoverDataURL} width={"100%"} height={"100%"}/>
+                    </StyledImgContainer>
+                </StyledImgWrap>
+                {   
                     createdStory.map((v,i)=>{
                         return (
                             <StyledDivElement key={i}>

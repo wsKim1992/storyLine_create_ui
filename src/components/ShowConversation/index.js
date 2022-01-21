@@ -3,7 +3,7 @@ import ConversationComponent from './ConversationComponent';
 import InputComponent from './InputComponent';
 import {Row,Col,Layout} from 'antd';
 import { useSelector } from 'react-redux';
-import ShowAllOutputText from '../ShowAllOutputText';
+import ShowAllOutputText from './ShowAllOutputText';
 import html2canvas from 'html2canvas';
 import {jsPDF} from "jspdf";
 import "jspdf/dist/polyfills.es.js";
@@ -13,6 +13,8 @@ const {Content}=Layout;
 const ConversationIndex = ()=>{
     const conversationRef = useRef(null);
     const {createdStory,creatingStory,showEntireStory,loadingStory,newStoryLoading} = useSelector((state)=>state.storyline);
+    const {storyData}= useSelector(state=>state.storyData);
+    
     const [isSpeak,setIsSpeak] = useState(false);
     const [message,setMessage]= useState('');
     const [downloadInPDF,setDownloadInPDF]=useState();
@@ -44,7 +46,7 @@ const ConversationIndex = ()=>{
                     <Col ref={conversationRef} style={{position:'relative',overflowY:'auto',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',border:'1px solid #454545',borderRadius:'10px',height:'77.5%'}} xs={24}>
                         {
                             showEntireStory?
-                            <ShowAllOutputText showPDFRef={showPDFRef}/>
+                            <ShowAllOutputText showPDFRef={showPDFRef} pageCoverDataURL={storyData.pageCoverDataURL}/>
                             :<ConversationComponent/>
                         }
                     </Col>

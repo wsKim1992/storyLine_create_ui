@@ -1,16 +1,45 @@
-import React,{useState,useEffect,useRef} from 'react';
+import React,{useState,useContext,useRef} from 'react';
 import styled from 'styled-components';
-import {Image,Button} from 'antd';
-import {LeftOutlined,RightOutlined} from '@ant-design/icons'
+import {LeftCircleOutlined,RightCircleOutlined,CloseOutlined} from '@ant-design/icons'
 import { useCallback } from 'react';
+import {CHANGE_STORYPAGE_COVER,StoryPageContext} from '../pages/CreatingStoryPage';
 
-const EntireWrap = styled.div`
-    position:relative;
-    overflow:hidden;
+const StyledCloseButtonWrap = styled.div`
+    height:5.22vh;
+    width:5.22vh;
+    position:absolute;
+    top:1.5px;right:1.5px;
+    z-index:1000;
+    background-color:rgba(45,45,45,0.4);
+    line-height:5.22vh;
+    text-align:center;
+    font-size:3.05vh;
+    color:white;
+`;
+
+const StyledButtonWrap = styled.div`
+    position:absolute;
+    top:50%;left:50%;
+    transform:translateX(-50%);
+    z-index:1000;
+    background-color:rgba(45,45,45,0.0);
     width:100%;
-    height:100%;
-    z-index:100;
-`
+    height:5.22vh;
+    display:flex;
+    flex-direction:row;
+    justify-content:space-evenly;
+    align-items:center;
+`;
+
+const StyledSingleButtonWrap = styled.div`
+    height:5.22vh;
+    width:5.22vh;
+    text-align:center;
+    line-height:5.22vh;
+    font-size: 3.2vh;
+    color:#fff;
+    cursor:pointer;
+`;
 
 const StyledImageListsContainer = styled.div`
     position:absolute;
@@ -26,136 +55,108 @@ const StyledImageListsContainer = styled.div`
     justify-content:center;
     overflow:hidden;
     transition-duration: 0.8s;
-    @media screen and (min-width:650px){
-        left:33.3%;
-    }
 ` 
 
 const StyledImageWrap = styled.div`
-    width:384px;
-    height:512px;
+    height:74.6vh;
+    width:55.9vh;
+    user-select:none;
     padding:${props=>props.index===0?'0px':'10px'};
     border:${props=>props.index===0?'10px solid #454545':'none'};
-    @media screen and (max-width:550px){
-        width:300px;
-        height:400px;
-    }
 `;
 
-const StyledBtnWrap = styled.div`
-    width:33.3%;
-    height:9.7%;
-    z-index: 1000;
-    position:absolute;
-    top:5%;
-    left:50%;
-    transform:translateX(-50%);
-    display:flex;
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-evenly;
-    color:white;
-    @media screen and (max-width:950px){
-        width:45%;
-        height:8.5%;
-        font-size:7.5px;
-    }
-    button{
-        @media screen and (max-width:950px){
-            font-size:7.5px;
-        }
-    }
-`;
+const CreateStoryPageBookCoverList = ({setIsShowBookCoverList})=>{
+    const imageListContainerRef = useRef(null);
 
-const StyledArrowButton = styled(Button)`
-    width:20%;
-    height:85%;
-    border-radius:5px;
-    border:none;
-    background-color:rgba(35, 156, 158, 0.75);
-`
-
-const StyledEnterButton = styled(Button)`
-    width:35%;
-    height:85%;
-    border-radius:5px;
-    border:none;
-    background-color:rgba(35, 156, 158, 0.75);
-`
-
-const CreateStoryPageBookCoverList = ()=>{
-
-    const coverSampleList=['/assets/img/coverImg/fantasy/판타지1.jpg','/assets/img/coverImg/fantasy/판타지2.jpg'
-        ,'/assets/img/coverImg/fantasy/판타지3.jpg','/assets/img/coverImg/fantasy/판타지4.jpg'
-        ,'/assets/img/coverImg/fantasy/판타지5.jpg','/assets/img/coverImg/fantasy/판타지6.jpg'
-        ,'/assets/img/coverImg/fantasy/판타지7.jpg','/assets/img/coverImg/fantasy/판타지8.jpg'
-        ,'/assets/img/coverImg/fantasy/판타지9.jpg'];
+    const {dispatch,coverSampleList}=useContext(StoryPageContext);
     
     const imageRef = useRef([]);
-    const imageListContainerRef = useRef([]);
-    const [imageIndex,setImageIndex] = useState(0);
+    const [isDraw,setIsDraw] = useState(false);
+    const [prevX,setPrevX] = useState(-1);
+    const [leftVal,setLeftVal]=useState(0);
 
-
-    const imageBefore = useCallback(()=>{
-        const moveOffset = imageRef.current[imageIndex].getBoundingClientRect().width;
-        const prevLeft = parseInt(imageListContainerRef.current.style.left.split("px")[0]);
-        if(imageIndex-1<0){
-            const containerWidth = imageListContainerRef.current.getBoundingClientRect().width;
-            imageListContainerRef.current.style.left = `-${containerWidth-moveOffset}px`;
-            imageRef.current[imageIndex].style.padding='10px';
-            imageRef.current[imageIndex].style.border='none';
-            imageRef.current[coverSampleList.length-1].style.padding='0px';
-            imageRef.current[coverSampleList.length-1].style.border='10px solid rgb(69,69,69)';
-            setImageIndex(coverSampleList.length-1);
-        }else {
-            
-            imageListContainerRef.current.style.left = `${prevLeft+moveOffset}px`;
-            imageRef.current[imageIndex].style.padding='10px';
-            imageRef.current[imageIndex].style.border='none';
-            imageRef.current[imageIndex-1].style.padding='0px';
-            imageRef.current[imageIndex-1].style.border='10px solid rgb(69,69,69)';
-            setImageIndex(imageIndex-1);
+    const onMouseStart = useCallback((evt)=>{
+        if(imageListContainerRef.current){
+            if(!isDraw){
+                setPrevX(evt.changedTouches[0].clientX);
+                setIsDraw(true);
+            }else{
+                return false;
+            }
+        }else{
+            return false;
         }
-    },[imageIndex,coverSampleList]);
+    },[isDraw,imageListContainerRef.current])
 
-    const imageAfter = useCallback((e)=>{
-        if(imageIndex+1>coverSampleList.length-1){
-            imageListContainerRef.current.style.left = `0px`;
-            imageRef.current[imageIndex].style.padding='10px';
-            imageRef.current[imageIndex].style.border='none';
-            imageRef.current[0].style.padding='0px';
-            imageRef.current[0].style.border='10px solid rgb(69,69,69)';
-            setImageIndex(0);
-        }else{  
-            const prevLeft = parseInt(imageListContainerRef.current.style.left.split("px")[0]);
-            const moveOffset = imageRef.current[imageIndex].getBoundingClientRect().width;
-            imageListContainerRef.current.style.left = `-${(imageIndex)*moveOffset}px`;
-            imageRef.current[imageIndex].style.padding='10px';
-            imageRef.current[imageIndex].style.border='none';
-            imageRef.current[imageIndex+1].style.padding='0px';
-            imageRef.current[imageIndex+1].style.border='10px solid rgb(69,69,69)';
-            setImageIndex(imageIndex+1);
+    const onMouseDrag = useCallback((evt)=>{
+        if(isDraw){
+            const xAxisNow = evt.changedTouches[0].clientX;
+            const diff = xAxisNow-prevX;
+            imageListContainerRef.current.style.left = `${leftVal+diff}px`;
+        }else{
+            return false;
         }
-    },[imageIndex,coverSampleList]);
+    },[isDraw,prevX,imageListContainerRef.current]);
+
+    const onMouseDragEnd = useCallback((evt)=>{
+        setIsDraw(false);
+        setPrevX(-1);
+        setLeftVal(parseInt(imageListContainerRef.current.style.left.split("px")[0]));
+    },[])
+
+    const onClickLeft = (evt)=>{
+        const offsetWidth = imageListContainerRef.current.getBoundingClientRect().width/coverSampleList.length;
+        if(leftVal+offsetWidth>0){return false;}
+        imageListContainerRef.current.style.left = `${leftVal+offsetWidth}px`;
+        setLeftVal(prev=>prev+offsetWidth);
+    }
+
+    const onClickRight = (evt)=>{
+        const offsetWidth = imageListContainerRef.current.getBoundingClientRect().width/coverSampleList.length;
+        if(leftVal-offsetWidth<-imageListContainerRef.current.getBoundingClientRect().width-offsetWidth){return false;}
+        imageListContainerRef.current.style.left = `${leftVal-offsetWidth}px`;
+        setLeftVal(prev=>prev-offsetWidth);
+    }
+
+    const onClickImage = (src)=>{
+        const tempImg = new Image();
+        tempImg.src=src;
+        tempImg.onload = ()=>{
+            console.log(tempImg.src);
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = tempImg.width;tempCanvas.height = tempImg.height;
+            tempCanvas.getContext('2d').drawImage(tempImg,0,0,tempCanvas.width,tempCanvas.height);
+            dispatch({type:CHANGE_STORYPAGE_COVER,storypage_cover:tempCanvas.toDataURL('image/png')});
+        } 
+    }
+
+    const onClockCloseButton = useCallback(()=>{
+        setIsShowBookCoverList(false);
+    },[])
 
     return (
         <>
-            <StyledBtnWrap>
-                <StyledArrowButton onClick={imageBefore}>
-                    <LeftOutlined />
-                </StyledArrowButton>
-                <StyledEnterButton>
-                    SELECT
-                </StyledEnterButton>
-                <StyledArrowButton onClick={imageAfter}>
-                    <RightOutlined />
-                </StyledArrowButton>
-            </StyledBtnWrap>
-            <StyledImageListsContainer ref ={imageListContainerRef}>
+            <StyledCloseButtonWrap onClick={onClockCloseButton}>
+                <CloseOutlined/>
+            </StyledCloseButtonWrap>
+            <StyledButtonWrap>
+                <StyledSingleButtonWrap onClick={onClickLeft}>
+                    <LeftCircleOutlined/>
+                </StyledSingleButtonWrap>
+                <StyledSingleButtonWrap onClick={onClickRight}>
+                    <RightCircleOutlined/>
+                </StyledSingleButtonWrap>
+            </StyledButtonWrap>
+            <StyledImageListsContainer 
+                onTouchStart={onMouseStart}
+                onTouchMove={onMouseDrag}
+                onTouchEnd={onMouseDragEnd}
+                ref={imageListContainerRef}
+            >
                 {
                     coverSampleList.map((v,i)=>(
-                        <StyledImageWrap index={i} ref={ele=>imageRef.current[i]=ele} key={i}>
-                            <Image src={v} key={`${i}_image`} width={"100%"} height={"100%"}/>
+                        <StyledImageWrap onClick={()=>onClickImage(v)} isDraw={isDraw} index={i} ref={ele=>imageRef.current[i]=ele} key={i}>
+                            <img src={v} key={`${i}_image`} width={"100%"} height={"100%"}/>
                         </StyledImageWrap>
                     ))
                 }

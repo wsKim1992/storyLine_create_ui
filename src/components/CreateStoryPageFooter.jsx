@@ -1,7 +1,11 @@
-import React,{useState,useRef,useCallback} from 'react';
+import React,{useState,useRef,useCallback,useContext,useEffect} from 'react';
 import styled from 'styled-components';
 import {Row,Col, Button} from 'antd';
-import { useEffect } from 'react';
+import {ItalicOutlined,FontColorsOutlined,FontSizeOutlined,UploadOutlined,PictureOutlined,SaveOutlined } from '@ant-design/icons';
+import CreateStoryPageControllFontSize from './CreateStoryPageControllFontSize';
+import CreateStoryPageSelectFontFamily from './CreateStoryPageSelectFontFamily';
+import CreateStoryPageColorPicker from './CreateStoryPageColorPicker';
+import {StoryPageContext,ENABLE_TYPE_TEXT,DISABLE_TYPE_TEXT, CHANGE_INPUTYPE} from '../pages/CreatingStoryPage';
 
 const StyledFooterWrap = styled.div`
     display:flex;
@@ -9,6 +13,11 @@ const StyledFooterWrap = styled.div`
     align-items:center;
     justify-content:center;
     width:100%;height:12.5%;
+    position:relative;
+    @media screen and (max-height:420px){
+        position:fixed;
+        height:67.1px;
+    }
 `
 
 const StyledFooter = styled.div`
@@ -29,8 +38,11 @@ const StyledBtnListWrap = styled(Row)`
     height:80%;
     background-color:rgb(69, 69, 69);
     position:absolute; 
-    right:45%;
     padding:5.5px;
+    border-radius:8.5px;
+    .textTitle{
+        display:${innerHeight<350?'none':'block'};
+    }
 `;
 
 const StyledBtnWrap = styled(Col)`
@@ -46,38 +58,78 @@ const StyledButton = styled(Button)`
     height:100%;
     color:#fff;
     width:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-evenly;
+    align-items:center;
+
     &:hover{
         background-color:#454545;
         color:#fff;
     }
     &:focus{
-        background-color:rgb(34, 34, 34);
+        background-color:#b3afaf;
         color:#fff;
     }
     @media screen and (max-width:650px){
-        font-size: font-size:7.5px;
+        font-size:5.5px;
+    }
+    .textTitle{
+        display:${props=>props.innerheight<550?'none':'block'};
+    }
+    .iconTitle{
+        font-size:13.8px;
+        @media screen and (max-width:650px){
+            font-size:8.5px;
+        }
+        @media screen and (max-height:450px){
+            display:none;
+        }
     }
 `;
 
-const CreateStoryPageFooter = ({setIsShowBookCoverList})=>{
+/* const initCanvas=(canvas)=>{
+    canvas.width=768;canvas.height=1024;
+    canvas.getContext('2d').fillStyle="fff";
+    canvas.getContext('2d').fillRect(0,0,canvas.width,canvas.height);
+} */
+
+const canvasDataToBlob=(canvas)=>{
+    const base64Data = canvas.toDataURL('image/png');
+    const binaryData = window.atob(base64Data.split(',')[1]);
+    const dataArr = new Array();
+    for(let i = 0;i<binaryData.length;i++){
+        dataArr.push(binaryData.charCodeAt(i));
+    }
+    let blob = new Blob([new Uint8Array(dataArr)],{type:'image/png'});
+    return blob;
+}
+
+const CreateStoryPageFooter = ({setIsShowBookCoverList,setIsShowLoadBookCoverUpload,setIsShowPreview})=>{
     const [prevX,setPrevX]=useState(0);
     const [isTouched,setIsTouched]=useState(false);
     const footerRef = useRef(null);
     const btnListRef = useRef(null);
-
-    useEffect(()=>{
-        console.log(btnListRef.current.getBoundingClientRect());
-        console.log(footerRef.current.getBoundingClientRect());
-    },[])
-
-    useEffect(()=>{
-        console.log(isTouched);
-    },[isTouched])
+    const [showSelectFont,setShowSelectFont] = useState(false);
+    const [showSelectColor,setShowSelectColor]=useState(false);
+    const [showSelectFontSize,setSelectFontSize]=useState(false);
+    const {initCanvas,drawCanvas,dispatch,inputType,basicFontStyle,basicFontSize,basicFontColor,author,title,storypage_cover}=useContext(StoryPageContext);
+    const [innerHeight,setInnerHeight ]=useState(window.innerHeight);
 
     const onTouchEnd=useCallback((e)=>{
         setIsTouched(false);
         setPrevX(-1);
     },[])
+
+    useEffect(()=>{
+        const onResize = ()=>{
+            setInnerHeight(window.innerHeight);
+        }
+        window.addEventListener('resize',onResize);
+        return ()=>{
+            window.removeEventListener("resize",onResize);
+        }
+    },[window.innerHeight])
 
     const onTouchMove= useCallback((e)=>{
         if(isTouched){
@@ -131,8 +183,38 @@ const CreateStoryPageFooter = ({setIsShowBookCoverList})=>{
         setIsShowBookCoverList(prev=>!prev);
     },[])
 
+    const onClickUploadButton = useCallback(()=>{
+        setIsShowLoadBookCoverUpload(prev=>!prev);
+    },[])
+
+    const onSwitchInputType = useCallback(()=>{
+        dispatch({type:CHANGE_INPUTYPE});
+    },[])
+
+    const onClickShowPreview = useCallback(()=>{
+        setIsShowPreview(prev=>!prev);
+    },[])
+
+    const onClickSave = useCallback(async()=>{
+        const tempCanvas= document.createElement('canvas');
+        initCanvas(tempCanvas);
+        await drawCanvas(tempCanvas,storypage_cover,title,author,basicFontStyle,basicFontSize,basicFontColor);
+        const file = canvasDataToBlob(tempCanvas);
+        const filename = `${Date.now()}.png`;
+        const aTag = document.createElement('a');
+        const fileURL = window.URL.createObjectURL(file);
+        aTag.href = fileURL;
+        aTag.download=filename;
+        aTag.click();
+        window.URL.revokeObjectURL(fileURL);
+        
+    },[author,title,storypage_cover])
+
     return (
         <StyledFooterWrap>
+            {showSelectFont&& <CreateStoryPageSelectFontFamily setShowSelectFont={setShowSelectFont}/>}
+            {showSelectFontSize&&<CreateStoryPageControllFontSize setSelectFontSize={setSelectFontSize}/>}
+            {showSelectColor&&<CreateStoryPageColorPicker setShowSelectColor={setShowSelectColor}/>}
             <StyledFooter ref={footerRef}>  
                 <StyledBtnListWrap
                     ref={btnListRef}
@@ -147,33 +229,58 @@ const CreateStoryPageFooter = ({setIsShowBookCoverList})=>{
                     wrap={false}
                 >
                     <StyledBtnWrap span={1.5}>
-                        <StyledButton>
-                            Text
+                        <StyledButton onClick={onSwitchInputType}>
+                            <span className="textTitle">{inputType}</span>
+                        </StyledButton>
+                    </StyledBtnWrap>
+                    {/* <StyledBtnWrap span={1.5}>
+                        <StyledButton onClick={onClickText}>
+                            <span className="textTitle">Text</span>
+                            <span className="iconTitle"></span>
+                        </StyledButton>
+                    </StyledBtnWrap> */}
+                    <StyledBtnWrap span={1.5} onClick={()=>{setSelectFontSize(prev=>!prev)}}>
+                        <StyledButton innerheight={innerHeight}>
+                            <span className="iconTitle"><FontSizeOutlined /></span>
+                            <span className="textTitle">Font<br/>
+                            Size</span>
                         </StyledButton>
                     </StyledBtnWrap>
                     <StyledBtnWrap span={1.5}>
-                        <StyledButton>
-                            Font<br/>
-                            Size
+                        <StyledButton innerheight={innerHeight} onClick={()=>{setShowSelectFont(prev=>!prev)}}>
+                            <span className="iconTitle"><ItalicOutlined /></span>
+                            <span className="textTitle">Font<br/>
+                            Style</span>
                         </StyledButton>
                     </StyledBtnWrap>
                     <StyledBtnWrap span={1.5}>
-                        <StyledButton>
-                            Font<br/>
-                            Style
+                        <StyledButton innerheight={innerHeight} onClick={()=>{setShowSelectColor(prev=>!prev)}}>
+                            <span className="iconTitle"><FontColorsOutlined style={{color:`${basicFontColor}`}}/></span>
+                            <span className="textTitle">color</span>
                         </StyledButton>
                     </StyledBtnWrap>
                     <StyledBtnWrap span={1.5}>
-                        <StyledButton>
-                            Load<br/>
-                            Image
+                        <StyledButton  innerheight={innerHeight} onClick={onClickUploadButton}>
+                            <span className="iconTitle"><UploadOutlined /></span>
+                            <span className="textTitle">Load<br/>
+                            Image</span>
                         </StyledButton>
                     </StyledBtnWrap>
                     <StyledBtnWrap span={1.5}>
-                        <StyledButton onClick={onClickShowAll}>
-                            SHOW ALL<br/>
-                            BOOK<br/>
-                            COVER
+                        <StyledButton innerheight={innerHeight} onClick={onClickShowAll}>
+                            <span className="iconTitle">SAMPLE<br/>COVER</span>
+                        </StyledButton>
+                    </StyledBtnWrap>
+                    <StyledBtnWrap span={1.5}>
+                        <StyledButton innerheight={innerHeight} onClick={onClickShowPreview}>
+                            <span className="iconTitle"><PictureOutlined /></span>
+                            <span className="textTitle">PREVIEW</span>
+                        </StyledButton>
+                    </StyledBtnWrap>
+                    <StyledBtnWrap span={1.5}>
+                        <StyledButton onClick={onClickSave}  innerheight={innerHeight}>
+                            <span className="iconTitle"><SaveOutlined /></span>
+                            <span className="textTitle">SAVE</span>
                         </StyledButton>
                     </StyledBtnWrap>
                 </StyledBtnListWrap>

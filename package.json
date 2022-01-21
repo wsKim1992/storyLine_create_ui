@@ -20,6 +20,7 @@
     "jspdf": "^2.4.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
+    "react-colorful": "^5.5.1",
     "react-dom": "^17.0.2",
     "react-dropzone": "^11.4.2",
     "react-redux": "^7.2.6",
