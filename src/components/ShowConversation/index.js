@@ -10,27 +10,41 @@ import "jspdf/dist/polyfills.es.js";
 
 const {Content}=Layout;
 
+const loadImageOnPDF = (doc,pageCoverDataURL,pdfWidth,pdfHeight)=>{
+    return new Promise((resolve,reject)=>{
+        const titleImage = new Image;
+        titleImage.src = pageCoverDataURL;
+        titleImage.onload = ()=>{
+            doc.addImage(titleImage,'PNG',0,0,pdfWidth,pdfHeight);
+            resolve();
+        }
+    })
+}
+
 const ConversationIndex = ()=>{
     const conversationRef = useRef(null);
     const {createdStory,creatingStory,showEntireStory,loadingStory,newStoryLoading} = useSelector((state)=>state.storyline);
     const {storyData}= useSelector(state=>state.storyData);
-    
+    const {pageCoverDataURL}=storyData;
     const [isSpeak,setIsSpeak] = useState(false);
     const [message,setMessage]= useState('');
-    const [downloadInPDF,setDownloadInPDF]=useState();
+    const [downloadInPDF,setDownloadInPDF]=useState(false);
     const showPDFRef = useRef(null);
+    const [renderPdf,setRenderPdf] = useState(null);
 
-    useEffect(()=>{
+    useEffect(async()=>{
         if(downloadInPDF&&showPDFRef.current){
-            const input = showPDFRef.current;
-            html2canvas(input)
-                .then((canvas)=>{
-                    console.log(canvas);
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF();
-                    pdf.addImage(imgData,'JPEG',0,0);
-                    pdf.save("download.pdf");
-                })
+            const pdfHeight = 512;
+            const pdfWidth = 384;
+            const offsetX = parseFloat(pdfWidth/10);
+            const offsetY = parseFloat(pdfHeight/10); 
+            const fontSize = 18.5;
+            let doc = new jsPDF("p","px",[pdfWidth,pdfHeight]);
+            doc.setFontSize(fontSize);
+            await loadImageOnPDF(doc,pageCoverDataURL,pdfWidth,pdfHeight);
+            doc.addPage([384,512],"p");
+            doc.text(10,10,creatingStory.outputText[creatingStory.index]);
+            doc.save(`${Date.now()}.pdf`);
         }
     },[downloadInPDF,showPDFRef.current])
 
@@ -40,6 +54,7 @@ const ConversationIndex = ()=>{
 
     return(
         <React.Fragment>
+            
             <Content style={{width:'100%',height:'100%'}}>
                 <Row style={{width:'100%',height:'100%'}}>
                     {

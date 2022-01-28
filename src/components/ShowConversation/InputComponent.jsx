@@ -56,6 +56,7 @@ const StyledDiv = styled.div`
     align-items:center;
     justify-content:center;
     cursor:url(./assets/img/EkhxNgXUUAEyO__.jpg),auto;
+    border-radius: 10px;
 `
 
 const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF})=>{
@@ -88,16 +89,22 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
         return showEntireStory||loadingStory;
     },[showEntireStory,loadingStory])
 
-    const saveFile = (encodedText)=>{
+    const saveFile = async(encodedText)=>{
         const blob = new Blob([encodedText],{type:'text/plain'});
-        const fileName = `${Date.now()}.nst`;
-        const aTag = document.createElement('a');
-        const fileURL = window.URL.createObjectURL(blob);
-        aTag.href = fileURL
-        aTag.download = fileName;
-        aTag.click();
-        console.log(fileURL);
-        window.URL.revokeObjectURL(fileURL);
+        const fileName = `${Date.now()}.pkg`;
+        if(window.showSaveFilePicker){
+            const fileHandle = await window.showSaveFilePicker();
+            const fileStream = await fileHandle.createWritable();
+            await fileStream.write(blob);
+            await fileStream.close();
+        }else{
+            const fileURL = window.URL.createObjectURL(blob);
+            const aTag = document.createElement('a');
+            aTag.href = fileURL
+            aTag.download = fileName;
+            aTag.click();
+            window.URL.revokeObjectURL(fileURL);
+        }
     }
    
     useEffect(()=>{
@@ -167,7 +174,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
     const onClickUpload = (evt)=>{
         const file = evt.target.files[0];
         const fileType = file.name.split('.')[1]
-        if(fileType==='nst'){
+        if(fileType==='pkg'){
             let reader = new FileReader();
             reader.onload=(readerEvt)=>{
                 const textData = readerEvt.target.result;
@@ -175,7 +182,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
             }
             reader.readAsText(file,'base64');
         }else{
-            alert(".nst 형식의 파일을 업로드 해주세요!");
+            alert(".pkg 형식의 파일을 업로드 해주세요!");
             return false;
         }
     }
@@ -336,7 +343,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
                     <StyledCol span={1.5}>
                         <StyledButton onClick={onClickSpeak}>
                             <AudioOutlined />
-                            <p>SPEAK</p>
+                            <p>VOICE</p>
                         </StyledButton>
                     </StyledCol>
                     }

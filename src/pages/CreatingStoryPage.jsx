@@ -2,9 +2,9 @@ import React,{useState,createContext,useMemo, useReducer} from 'react';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import CreateStoryPageBody from '../components/CreateStoryPageBody';
-import CreateStoryPageFooter from '../components/CreateStoryPageFooter';
-import CreateStoryPageHeader from '../components/CreateStoryPageHeader';
+import CreateStoryPageBody from '../components/CreateStoryPage/CreateStoryPageBody';
+import CreateStoryPageFooter from '../components/CreateStoryPage/CreateStoryPageFooter';
+import CreateStoryPageHeader from '../components/CreateStoryPage/CreateStoryPageHeader';
 
 const EntireWrap = styled.div`
     width:100%;
@@ -20,7 +20,7 @@ const StyledContainer = styled.div`
     width:66.6%;
     height:100%;
     @media screen and (max-width:650px){
-        width:80%;
+        width:90%;
     }
 `
 
@@ -86,8 +86,7 @@ const writeTextOnCanvas=(canvas,title,basicFontColor,basicFontStyle)=>{
     const widthRatio = title.widthRatio;
     const newWidth = widthRatio*canvas.width;
     const text = title.text;
-    console.log(`newTop : ${newTop}`);
-    console.log(`newLeft : ${newLeft}`);
+    
     const break_point_arr=title.break_point_arr;
     canvas.getContext('2d').textBaseline = 'ideographic';
     canvas.getContext('2d').textAlign = 'left';
@@ -289,11 +288,12 @@ const CreatingStoryPage = ({history})=>{
     const [isShowPreview,setIsShowPreview]=useState(false);
     const [storyPageState,storyPageDispatch] = useReducer(storyPageReducer,InitialState);
     const {storyData} = useSelector(state=>state.storyData);
+    const [checkReduxData,setCheckReduxData]=useState(false);
     const storyPageData = useMemo(()=>{
         return {
-            storypage_cover:storyData.storypage_cover?storyData.storypage_cover:storyPageState.storypage_cover,
-            title:storyData.title?storyData.title:storyPageState.title,
-            author:storyData.author?storyData.author:storyPageState.author,
+            storypage_cover:storyPageState.storypage_cover,
+            title:storyPageState.title,
+            author:storyPageState.author,
             enableTypeText:storyPageState.enableTypeText,
             dispatch:storyPageDispatch,
             inputType:storyPageState.inputType,
@@ -303,13 +303,19 @@ const CreatingStoryPage = ({history})=>{
             coverSampleList:storyPageState.coverSampleList,
             initCanvas,drawCanvas
         }
-    },[storyPageState])
+    },[storyPageState,storyData.title,storyData.author]);
+
+    useEffect(()=>{
+        if(storyData.storypage_cover){
+            storyPageDispatch({type:CHANGE_STORYPAGE_COVER,storypage_cover:storyData.storypage_cover})
+        }
+    },[storyData])
 
     return(
         <StoryPageContext.Provider value={storyPageData}>
             <EntireWrap>
+                <CreateStoryPageHeader/>
                 <StyledContainer>
-                    <CreateStoryPageHeader/>
                     <CreateStoryPageBody
                         isShowLoadBookCoverUpload={isShowLoadBookCoverUpload} 
                         setIsShowLoadBookCoverUpload={setIsShowLoadBookCoverUpload}

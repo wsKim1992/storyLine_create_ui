@@ -35,7 +35,6 @@ const reducer = (state=initialState,action)=>{
                 draft.storyData.author = action.storyData?.author;
                 draft.storyData.storypage_cover = action.storyData.storypage_cover;
                 draft.storyData.pageCoverDataURL=action.storyData.pageCoverDataURL;
-                console.log(action.storyData);
                 break;
             }
             case STORYDATA_LOAD_ERROR:{

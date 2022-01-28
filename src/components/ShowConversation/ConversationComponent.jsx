@@ -17,7 +17,6 @@ const StoryLineWrap = styled.div`
 
 const ConversationComponent = memo(()=>{
     const {createdStory,creatingStory} = useSelector((state)=>state.storyline);
-    console.log("ConversationComponent");
     return(
         <React.Fragment>
             <StoryLineWrap>

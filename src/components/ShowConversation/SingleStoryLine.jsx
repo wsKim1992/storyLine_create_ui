@@ -104,8 +104,7 @@ const SingleStoryLine=({data,isLastOne})=>{
                 setOutputHeight(textareaRef.current.scrollHeight);
             }    
         }
-        
-    },[textareaRef.current?.scrollHeight])
+    },[textareaRef.current?.scrollHeight]);
 
     useEffect(()=>{
         setOutputText(isLastOne?data.outputText[data.index]:data.outputText);
