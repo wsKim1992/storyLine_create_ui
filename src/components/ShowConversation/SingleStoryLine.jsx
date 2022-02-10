@@ -11,7 +11,7 @@ let StyledTextArea = styled.textarea`
     background-color:rgb(34, 34, 34);
     color:#fff;
     width:100%;
-    height:100%;
+    height:${props=>props.height}px;
     border:none;
     border-radius:5.5px;
     overflow:hidden;
@@ -68,6 +68,7 @@ const OutputStoryContextDiv = styled.div`
     flex-direction:row;
     align-items:center;
     justify-content:center;
+    padding:0.5%;
 `;
 
 const StyledImage= styled(Image)`
@@ -80,6 +81,26 @@ const InnerInputStoryContext=styled.div`
     flex-direction:row;
     align-items:flex-end;
     justify-content:space-between;
+`;
+
+const StyledInputWrap = styled.div`
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:flex-end;
+    width:auto;
+`;
+
+const StyledInputNextButton = styled(Button)`
+    border-radius:5px;
+    border:none;
+    background-color:rgb(34,34,34);
+    font-size:13.5px;
+    height:100%;
+    color:#fff;
+    span{
+        margin-bottom:33.3%;
+    }
 `;
 
 const SingleStoryLine=({data,isLastOne})=>{
@@ -98,13 +119,15 @@ const SingleStoryLine=({data,isLastOne})=>{
 
     useEffect(()=>{
         if(!editMode){
+            const outputTextHeight = parseFloat(document.defaultView.getComputedStyle(outputTextRef.current).height.split("px"));
+            console.log(outputTextHeight);
             setOutputHeight(outputTextRef.current.getBoundingClientRect().height);
         }else{
             if(textareaRef.current){
                 setOutputHeight(textareaRef.current.scrollHeight);
             }    
         }
-    },[textareaRef.current?.scrollHeight]);
+    },[editMode,textareaRef.current?.scrollHeight]);
 
     useEffect(()=>{
         setOutputText(isLastOne?data.outputText[data.index]:data.outputText);
@@ -145,41 +168,46 @@ const SingleStoryLine=({data,isLastOne})=>{
                     &&
                     <InputStoryContextDiv style={{display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
                         <Row style={{width:'100%',height:'auto'}}>
-                            <Col span={(isLastOne?(editMode?23:20):23)}>
-                                {data.inputText&&
+                            <Col span={24}>
                                 <span>
-                                    <MessageOutlined/>&nbsp;       
-                                    {Array.isArray(data.inputText)?(<><p>{data.inputText[0]}</p><p>{data.inputText[1]}</p></>):data.inputText}
-                                </span>}
+                                    <MessageOutlined/>&nbsp;
+                                    {
+                                        data.inputText&&       
+                                        <div style={{height:'auto',width:'100%'}}>{data.inputText}</div>
+                                    }
+                                </span>
                             </Col>
-                            <Col style={{ display: 'flex',flexDirection: 'column-reverse'}} span={(isLastOne?(editMode?1:4):1)}>
-                                {
-                                    !editMode
-                                    &&
-                                    isLastOne
-                                    &&
-                                    (
-                                        <div style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-evenly',width:'auto'}}>
-                                            <span>
-                                                {creatingStory.outputText&&`${creatingStory.index+1}/${creatingStory.outputText.length}`}
-                                            </span>
-                                            <span>
-                                                <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginLeft:'2.5px'}}>
-                                                    <LeftCircleOutlined></LeftCircleOutlined>
-                                                </Button>
-                                                <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
-                                                    <RightCircleOutlined></RightCircleOutlined>
-                                                </Button>
-                                            </span>
-                                        </div >
-                                    )
-                                }
-                                {
-                                    editMode&&
-                                    <ChangeTextOutPutButtonWrap >
-                                        <ChangeTextOutPutButton onClick={onEditOutput}><SendOutlined /></ChangeTextOutPutButton>  
-                                    </ChangeTextOutPutButtonWrap>
-                                }
+                            
+                            <Col style={{ display: 'flex',flexDirection: 'column-reverse'}} span={24}>
+                                <StyledInputWrap>
+                                    {
+                                        !editMode
+                                        &&
+                                        isLastOne
+                                        &&
+                                        (
+                                            <>
+                                                <div>
+                                                    {creatingStory.outputText&&`${creatingStory.index+1}/${creatingStory.outputText.length}`}
+                                                </div>
+                                                <div>
+                                                    <StyledInputNextButton onClick={onClickUndo} >
+                                                        <LeftCircleOutlined ></LeftCircleOutlined>
+                                                    </StyledInputNextButton>
+                                                    <StyledInputNextButton onClick={onClickRedo}>
+                                                        <RightCircleOutlined></RightCircleOutlined>
+                                                    </StyledInputNextButton>
+                                                </div>
+                                            </>
+                                        )
+                                    }
+                                    {
+                                        editMode&&
+                                        <ChangeTextOutPutButtonWrap >
+                                            <ChangeTextOutPutButton onClick={onEditOutput}><SendOutlined /></ChangeTextOutPutButton>  
+                                        </ChangeTextOutPutButtonWrap>
+                                    }
+                                </StyledInputWrap>
                             </Col>
                         </Row>
                     </InputStoryContextDiv>
@@ -204,17 +232,17 @@ const SingleStoryLine=({data,isLastOne})=>{
                                 isLastOne
                                 &&
                                 <div style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'space-between',width:'auto'}}>
-                                    <span>
+                                    <div>
                                         {creatingStory.outputText&&`${creatingStory.index+1}/${creatingStory.outputText.length}`}
-                                    </span>
-                                    <span>
-                                        <Button onClick={onClickUndo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff',marginRight:'2.5px'}}>
+                                    </div>
+                                    <div>
+                                        <StyledInputNextButton onClick={onClickUndo}>
                                             <LeftCircleOutlined></LeftCircleOutlined>
-                                        </Button>
-                                        <Button onClick={onClickRedo} style={{borderRadius:'5px',border:'none',backgroundColor:'rgb(34, 34, 34)',fontSize:'13.5px',height:'100%',color:'#fff'}}>
+                                        </StyledInputNextButton>
+                                        <StyledInputNextButton onClick={onClickRedo}>
                                             <RightCircleOutlined></RightCircleOutlined>
-                                        </Button>
-                                    </span>
+                                        </StyledInputNextButton>
+                                    </div>
                                 </div>
                             }
                             {
@@ -243,7 +271,7 @@ const SingleStoryLine=({data,isLastOne})=>{
                         (outputText)
                         :(
                             <>
-                                <StyledTextArea ref={textareaRef} style={{height:`${outputHeight}px`}} onChange={onChangeOutputText} value={outputText}/>
+                                <StyledTextArea ref={textareaRef} height={outputHeight} onChange={onChangeOutputText} value={outputText}/>
                             </>
                         ) 
                     }

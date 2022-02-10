@@ -7,6 +7,7 @@ import ShowAllOutputText from './ShowAllOutputText';
 import html2canvas from 'html2canvas';
 import {jsPDF} from "jspdf";
 import "jspdf/dist/polyfills.es.js";
+import ShowPDFComponent from './ShowPDFComponent';
 
 const {Content}=Layout;
 
@@ -30,23 +31,30 @@ const ConversationIndex = ()=>{
     const [message,setMessage]= useState('');
     const [downloadInPDF,setDownloadInPDF]=useState(false);
     const showPDFRef = useRef(null);
+    const textElementsIntoPDFRef = useRef([]);
     const [renderPdf,setRenderPdf] = useState(null);
+/* 
+    useEffect(()=>{
+        console.log('textElementsIntoPDFRef');
+        console.log(textElementsIntoPDFRef.current);
+    },[textElementsIntoPDFRef.current]) */
 
-    useEffect(async()=>{
-        if(downloadInPDF&&showPDFRef.current){
+    /* useEffect(async()=>{
+        if(downloadInPDF&&showPDFRef.current&&textElementsIntoPDFRef.current){
             const pdfHeight = 512;
             const pdfWidth = 384;
-            const offsetX = parseFloat(pdfWidth/10);
-            const offsetY = parseFloat(pdfHeight/10); 
-            const fontSize = 18.5;
             let doc = new jsPDF("p","px",[pdfWidth,pdfHeight]);
-            doc.setFontSize(fontSize);
             await loadImageOnPDF(doc,pageCoverDataURL,pdfWidth,pdfHeight);
             doc.addPage([384,512],"p");
-            doc.text(10,10,creatingStory.outputText[creatingStory.index]);
-            doc.save(`${Date.now()}.pdf`);
+            
+            html2canvas(textElementsIntoPDFRef.current).then(canvas=>{
+                const imageData=canvas.toDataURL('image/png');
+                console.log(imageData);
+                doc.addImage(imageData,'PNG',0,0,pdfWidth,pdfHeight);
+                doc.save(`${Date.now()}.pdf`);
+            })
         }
-    },[downloadInPDF,showPDFRef.current])
+    },[downloadInPDF,showPDFRef.current,textElementsIntoPDFRef.current]) */
 
     useEffect(()=>{
         conversationRef.current.scrollTo(0,conversationRef.current.scrollHeight-conversationRef.current.clientHeight);
@@ -54,14 +62,13 @@ const ConversationIndex = ()=>{
 
     return(
         <React.Fragment>
-            
-            <Content style={{width:'100%',height:'100%'}}>
+            <Content style={{width:'100%',height:'100%',backgroundColor:'rgba(45,45,45,0.6)'}}>
                 <Row style={{width:'100%',height:'100%'}}>
                     {
-                    <Col ref={conversationRef} style={{position:'relative',overflowY:'auto',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',border:'1px solid #454545',borderRadius:'10px',height:'77.5%'}} xs={24}>
+                    <Col ref={conversationRef} style={{position:'relative',overflowY:'auto',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',border:'1px solid #454545',borderRadius:'10px',height:'79.5%'}} xs={24}>
                         {
                             showEntireStory?
-                            <ShowAllOutputText showPDFRef={showPDFRef} pageCoverDataURL={storyData.pageCoverDataURL}/>
+                            <ShowAllOutputText showPDFRef={showPDFRef} textElementsIntoPDFRef={textElementsIntoPDFRef} pageCoverDataURL={storyData.pageCoverDataURL}/>
                             :<ConversationComponent/>
                         }
                     </Col>

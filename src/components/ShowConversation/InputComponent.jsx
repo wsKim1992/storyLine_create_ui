@@ -3,7 +3,7 @@ import {Button,Row,Col,Input,Image} from 'antd';
 import {SendOutlined,CloseOutlined,FilePdfOutlined,LeftCircleOutlined,RightCircleOutlined,StepForwardOutlined
 ,RedoOutlined,PictureOutlined,FileAddOutlined,SaveOutlined,AudioOutlined,MenuOutlined, FormOutlined} from '@ant-design/icons';
 import './conversationPage.css';
-import {INIT_REQUEST,LOAD_STORY_REQUEST,ENCODE_AND_SAVE_REQUEST,ENCODE_AND_SAVE_INIT,DECODE_AND_UPLOAD_REQUEST, CHANGE_LAST_STORY_INDEX_REQUEST, SHOW_ENTIRE_STORY, EDIT_ENTIRE_STORY} from '../../../reducers/storyline';
+import {LOAD_SAMPLE_DATA,INIT_REQUEST,LOAD_STORY_REQUEST,ENCODE_AND_SAVE_REQUEST,ENCODE_AND_SAVE_INIT,DECODE_AND_UPLOAD_REQUEST, CHANGE_LAST_STORY_INDEX_REQUEST, SHOW_ENTIRE_STORY, EDIT_ENTIRE_STORY} from '../../../reducers/storyline';
 import {CHANGE_GENRE} from '../../../reducers/storyData';
 import { useDispatch,useSelector } from 'react-redux';
 import ImageUpload from './ImageUpload';
@@ -11,6 +11,19 @@ import RecordComponent from './RecordComponent';
 import styled from 'styled-components';
 
 const { Search } = Input;
+
+const StyledEntireWrap = styled.div`
+    overflow:hidden;
+    position:relative;
+    border-radius:10px;
+    border:1px solid #454545;
+    width:100%;
+    height:47.5%;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+`;
 
 const StyledMouseDiv = styled.div`
     position:absolute;
@@ -35,6 +48,9 @@ const StyledButton = styled(Button)`
     height:100%;
     color:#fff;
     width:100%;
+    p{
+        text-align:center;
+    }
     &:hover{
         background-color:#454545;
         color:#fff;
@@ -319,9 +335,13 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
         //mouseComponentRef.current.style.cursor='default';
     }
 
+    const onClickLoadSampleData = useCallback(()=>{
+        dispatch({type:LOAD_SAMPLE_DATA});
+    },[]); 
+
     return( 
         <React.Fragment>
-            <div ref={btnListWrapRef} style={{overflow:'hidden',position:'relative',borderRadius:'10px',border:'1px solid #454545',width:'100%',height:'47.5%',display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+            <StyledEntireWrap ref={btnListWrapRef} >
                 <Row onTouchEnd={onTouchEnd} onTouchMove={onTouchMove} onTouchStart={onTouchStart} onMouseOut={onMouseOut} onMouseUp={onMouseUp} onMouseMove={onMouseMove} onMouseDown={onClickWrapRef} ref={btnListRef} gutter={[1.5,1.5]} wrap={false} justify="end" style={{position:'absolute',right:'0',overflow:'hidden',width:'641px',height:'80%',padding:'5.5px 5.5px'}}>
                     {showEntireStory&&
                     <StyledCol span={1.5}>
@@ -336,6 +356,14 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
                         <StyledButton onClick={onClickReset} >
                             <FormOutlined />
                             <p>새로쓰기</p>
+                        </StyledButton>
+                    </StyledCol>
+                    }
+                    {!showEntireStory&&
+                    <StyledCol span={1.5}>
+                        <StyledButton onClick={onClickLoadSampleData}>
+                            <FormOutlined />
+                            <p>샘플보기</p>
                         </StyledButton>
                     </StyledCol>
                     }
@@ -415,7 +443,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
                         </StyledCol>
                     }
                 </Row>
-            </div>
+            </StyledEntireWrap>
             <StyledDiv ref={inputComponentRef} 
                 onMouseLeave={(newStoryLoading||loadingStory)?onMouseLeaveDiv:null} 
                 onMouseEnter={(newStoryLoading||loadingStory)?onMouseEnterDiv:null} 

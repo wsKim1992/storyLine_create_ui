@@ -34,6 +34,7 @@ const StyledPageBodyWrap = styled.div`
 const StyledCanvasWrap = styled.div`
     width:100%;
     height:100%;
+    background-color:rgba(45,45,45,0.5);
     border:1px solid #454545;
     border-radius:10px;
     display:flex;
@@ -101,6 +102,7 @@ const StyledTextAreaWrap = styled.div`
     z-index:51;
     border:none;
     cursor:move;
+    border-radius:5.5px;
 `
 
 const StyledTextArea = styled.textarea`
@@ -122,6 +124,7 @@ const StyledTextArea = styled.textarea`
     &::-webkit-scrollbar {
         display:none;
     }
+    border-radius:5.5px;
 `
 
 const StyledTextAreaButtonWrap = styled.div`
@@ -139,10 +142,13 @@ const StyledTextAreaButtonWrap = styled.div`
 const StyledTextAreaDeleteButton = styled(Button)`
     width:18px;height:18px;
     font-size:13.5px;
-    line-height:18px;
-    padding:0px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    padding:0;
     border:none;
-    background-color:rgba(35,156,158,0.75);
+    background-color:#985e11;
     color:#fff;
     border-radius:3.5px;
     &:hover{
@@ -208,8 +214,8 @@ const CreateStoryPageBody = ({
     useEffect(() => {
         if (canvasRef.current && canvasInit) {
             const standardWidth = canvasRef.current.width;
-            const title = storyData.title ? storyData.title : initTextArea(canvasRef.current, 2, 3, 'book title', 'bookTitle', 44, 300);
-            const author = storyData.author ? storyData.author : initTextArea(canvasRef.current, 1.5, 3, 'author', 'author', 35, 180);
+            const title = storyData.title ? storyData.title : initTextArea(canvasRef.current, 2, 3, 'book title', 'bookTitle', 44, 250);
+            const author = storyData.author ? storyData.author : initTextArea(canvasRef.current, 1.5, 3, 'author', 'author', 35, 160);
 
             dispatch({ type: INIT_TITLE_AUTHOR, title, author });
             setTitleText(title.text); setAuthorText(author.text);
@@ -358,15 +364,15 @@ const CreateStoryPageBody = ({
             let left = prevX ;
             const topRatio = parseFloat(top/canvasRef.current.height);
             const leftRatio = parseFloat(left/canvasRef.current.width);
-            
+            const fontSizeRatio = basicFontSize / canvasRef.current.height;
             const fontSize = basicFontSize;
             if (inputType === 'title') {
                 if (!title) {
-                    dispatch({ type: INSERT_TITLE, data: { topRatio, leftRatio ,width, height:fontSize, top, left, id: Date.now()}});
+                    dispatch({ type: INSERT_TITLE, data: { text:'제목',fontSizeRatio,break_point_arr: [],topRatio, leftRatio ,width, height:fontSize, top, left, id: Date.now()}});
                 } 
             } else {
                 if (!author) {
-                    dispatch({ type: INSERT_AUTHOR, data: { topRatio, leftRatio ,width, height:fontSize, top, left, id: Date.now()}});
+                    dispatch({ type: INSERT_AUTHOR, data: { text:'작가명',fontSizeRatio,break_point_arr: [],topRatio, leftRatio ,width, height:fontSize, top, left, id: Date.now()}});
                 } 
             }
 
@@ -408,10 +414,10 @@ const CreateStoryPageBody = ({
     }, [])
 
     const onClickTextArea = useCallback((evt, type, id) => {
-        document.getElementById(`${id}`).style.border = '1px solid #454545';
+        document.getElementById(`${id}`).style.border = '1px solid #985e11';
         document.getElementById(`${id}`).style.backgroundColor = 'transparent';
         document.getElementById(`${id}_btnWrap`).style.display = 'flex';
-        document.getElementById(`${id}_wrap`).style.border = '1px solid #454545';
+        document.getElementById(`${id}_wrap`).style.border = '1px solid #985e11';
         dispatch({ type: CHANGE_INPUTYPE, typename: type });
     }, [])
 
@@ -436,10 +442,10 @@ const CreateStoryPageBody = ({
     }, [coverSampleImgIndex, storypage_cover])
 
     const onMouseEnterTextArea = useCallback((id) => {
-        document.getElementById(`${id}`).style.border = '1px solid #454545';
+        document.getElementById(`${id}`).style.border = '1px solid #985e11';
         document.getElementById(`${id}`).style.backgroundColor = 'transparent';
         document.getElementById(`${id}_btnWrap`).style.display = 'flex';
-        document.getElementById(`${id}_wrap`).style.border = '1px solid #454545';
+        document.getElementById(`${id}_wrap`).style.border = '1px solid #985e11';
     }, [])
 
     const onMouseLeaveTextArea = useCallback((id) => {

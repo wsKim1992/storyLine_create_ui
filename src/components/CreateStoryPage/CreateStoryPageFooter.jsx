@@ -31,6 +31,7 @@ const StyledFooter = styled.div`
     align-items:center;
     justify-content:center;
     position:relative;
+    background-color:rgba(45,45,45,0.5);
 `;
 
 const StyledBtnListWrap = styled(Row)`
@@ -116,11 +117,6 @@ const CreateStoryPageFooter = ({setIsShowBookCoverList,setIsShowLoadBookCoverUpl
     const {initCanvas,drawCanvas,dispatch,inputType,basicFontStyle,basicFontSize,basicFontColor,author,title,storypage_cover}=useContext(StoryPageContext);
     const [innerHeight,setInnerHeight ]=useState(window.innerHeight);
 
-    const onTouchEnd=useCallback((e)=>{
-        setIsTouched(false);
-        setPrevX(-1);
-    },[])
-
     useEffect(()=>{
         const onResize = ()=>{
             setInnerHeight(window.innerHeight);
@@ -131,8 +127,14 @@ const CreateStoryPageFooter = ({setIsShowBookCoverList,setIsShowLoadBookCoverUpl
         }
     },[window.innerHeight])
 
-    const onTouchMove= useCallback((e)=>{
+    const onTouchStart=useCallback((e)=>{
+        setPrevX(e.changedTouches[0].clientX);
+        setIsTouched(true);
+    },[])
+
+    const onTouchMove= (e)=>{
         if(isTouched){
+            e.stopPropagation();
             const offsetX = e.changedTouches[0].clientX;
             const diff = prevX-offsetX;
             let right = btnListRef.current.getBoundingClientRect().right;
@@ -143,7 +145,12 @@ const CreateStoryPageFooter = ({setIsShowBookCoverList,setIsShowLoadBookCoverUpl
         }else{
             return false;
         }
-    },[isTouched,prevX,btnListRef.current,footerRef.current])
+    }
+
+    const onTouchEnd=useCallback((e)=>{
+        setIsTouched(false);
+        setPrevX(-1);
+    },[])
 
     const onMoveStart=useCallback((e)=>{
         setPrevX(e.clientX);
@@ -168,11 +175,6 @@ const CreateStoryPageFooter = ({setIsShowBookCoverList,setIsShowLoadBookCoverUpl
             return false;
         }
     },[isTouched,prevX,btnListRef.current,footerRef.current])
-
-    const onTouchStart=useCallback((e)=>{
-        setPrevX(e.changedTouches[0].clientX);
-        setIsTouched(true);
-    },[])
 
     const onMouseLeave=useCallback((e)=>{
         setPrevX(-1);

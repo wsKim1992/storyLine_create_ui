@@ -47,7 +47,7 @@ const StyledStoryImg = styled.img`
     height:${props=>props.height}px;
 `;
 
-const ShowAllOutputText = ({showPDFRef,pageCoverDataURL})=>{
+const ShowAllOutputText = ({showPDFRef,pageCoverDataURL,textElementsIntoPDFRef})=>{
     const {createdStory,creatingStory} = useSelector((state)=>state.storyline);
     const [fullText, setFullText]=useState(null);
 
@@ -88,6 +88,7 @@ const ShowAllOutputText = ({showPDFRef,pageCoverDataURL})=>{
                         </StyledImgWrap>
                    )
                 }
+                <div ref={textElementsIntoPDFRef}>
                 {   
                     createdStory.map((v,i)=>{
                         return (
@@ -111,6 +112,7 @@ const ShowAllOutputText = ({showPDFRef,pageCoverDataURL})=>{
                         <StyledDivElement>{creatingStory.outputText[creatingStory.index]}</StyledDivElement>
                     </StyledDivElement>
                 }
+                </div>
             </StyledEntireWrap>
         </div>
     )

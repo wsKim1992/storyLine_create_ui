@@ -37,12 +37,12 @@ const loadStoryWithImageAPI = (data)=>{
 function* loadStory(action){
     try{
         const {inputType,inputText,genre}=action.data;
-        console.log(`inputType : ${inputType}`);
+        /* console.log(`inputType : ${inputType}`);
         console.log(`inputText : ${inputText}`);
-        console.log(`input Genre : ${genreApiFuncList[genre]}`);
+        console.log(`input Genre : ${genreApiFuncList[genre]}`); */
         const output = inputType ==='image'?yield call(loadStoryWithImageAPI,action.data):yield call(loadStoryAPI,action.data);
-        const outputText = action.data.storyMode==='talk'?output.data['output_ko'].split("\n\n").map(v=>`\"${v}\"`):output.data['output_ko'];
-        console.log(output.data); 
+        const outputText = action.data.storyMode==='talk'?output.data['output_ko'].split("\n\n").map(v=>`\"${v}\"`):output.data['output_ko'].replace('\n','');
+        console.log(outputText); 
         yield put({
             type:LOAD_STORY_SUCCESS,
             data:{...action.data,outputText}

@@ -13,7 +13,7 @@ const EntireWrap = styled.div`
     flex-direction:column;
     justify-content:center;
     align-items:center;
-    background-color: rgb(15,15,15);
+    background-image: url(/assets/img/novel_main_002.jpg);
 `
 
 const StyledContainer = styled.div`
@@ -83,8 +83,8 @@ const writeTextOnCanvas=(canvas,title,basicFontColor,basicFontStyle)=>{
     const newLeft = canvas.width*titleLeftRatio;
     const fontSizeRatio = title.fontSizeRatio;
     const newFontSize = fontSizeRatio*canvas.height;
-    const widthRatio = title.widthRatio;
-    const newWidth = widthRatio*canvas.width;
+    /* const widthRatio = title.widthRatio; */
+    /* const newWidth = widthRatio*canvas.width; */
     const text = title.text;
     
     const break_point_arr=title.break_point_arr;
@@ -106,10 +106,10 @@ const writeTextOnCanvas=(canvas,title,basicFontColor,basicFontStyle)=>{
             if(lastString!==''){stringArr.push(lastString);}
             //canvas.getContext('2d').fillText(stringArr.join('\n'),newLeft,newTop);
             for(let i =0 ;i<stringArr.length;i++){
-                canvas.getContext('2d').fillText(stringArr[i],newLeft,newTop+((i+1)*newFontSize),newWidth);
+                canvas.getContext('2d').fillText(stringArr[i],newLeft,newTop+((i+1)*newFontSize));
             }
         }else{
-            canvas.getContext('2d').fillText(text,newLeft,newTop+newFontSize,newWidth);
+            canvas.getContext('2d').fillText(text,newLeft,newTop+newFontSize);
         }
     }else{
         canvas.getContext('2d').fillText('title',newLeft,newTop);
@@ -160,7 +160,8 @@ const storyPageReducer = (state,action)=>{
             const {author} = state;
             const {index,text}=action;
             const {break_point_arr}=author;
-            const newAuthor = {...author,break_point_arr:break_point_arr.filter(v=>v<text.length-1)};
+            break_point_arr
+            const newAuthor = {...author,break_point_arr:break_point_arr.filter(v=>v<text.length-1||v!=index)};
             return {...state,author:newAuthor};
         }
         case POP_TITLE_BREAK_POINT:{

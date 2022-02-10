@@ -8,7 +8,7 @@ const mode = process.env.NODE_ENV;
 const entryFile = path.resolve(__dirname,"src","client.jsx");
 const outputDir = path.resolve(__dirname,"dist");
 const fs = require('fs');
-
+const webpack = require("webpack");
 
 const config = {
     mode:mode,
@@ -17,6 +17,14 @@ const config = {
     },
     resolve:{
         extensions:['.js','.jsx'],
+        fallback:{
+            process:require.resolve("process"),
+            zlib:require.resolve("browserify-zlib"),
+            stream:require.resolve("stream-browserify"),
+            util:require.resolve("util"),
+            buffer:require.resolve("buffer"),
+            assert:require.resolve("assert"),
+        }
     },
     module:{
         rules:[
@@ -39,13 +47,17 @@ const config = {
                         mimetype:'image/png',
                         encoding:'base64',
                         limit:10000,
-                        fallback:require('file-loader')
+                        fallback:require.resolve('file-loader'),
                     }
                 }
             }
         ]
     },
     plugins:[
+        new webpack.ProvidePlugin({
+            Buffer:["buffer","Buffer"],
+            process:"process",
+        }),
         new HtmlWebpackPlugin({
             template: "./index.html",
             templateParameters:{
@@ -60,14 +72,6 @@ const config = {
             filename:"[name].css"
         })]:[]),
         new CleanWebpackPlugin(),
-        /* new CopyWebpackPlugin({
-            patterns:[
-                {
-                    from:path.resolve(__dirname,"static","img"),
-                    to:'img/'
-                },
-            ],
-        }), */
     ],
     output:{
         path:outputDir,
@@ -94,13 +98,15 @@ const config = {
                 watch:true,
             }
         ],
-        https:{
+        /* https:{
+            ca:fs.readFileSync(path.join(__dirname,'../httpsDocument/server.csr')),
             key:fs.readFileSync('../httpsDocument/server.key'),
             cert:fs.readFileSync('../httpsDocument/server.crt'),
-        },
+            requestCert:true,
+        }, */
         historyApiFallback:true,
-        port:9997,
-        host:"1.201.8.82",
+        port:8090,
+        host:"0.0.0.0",
         open:true,
         hot:true,
         proxy:{

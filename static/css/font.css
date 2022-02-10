@@ -37,3 +37,37 @@
     src: url('../font/humanyet.TTF') format('truetype');
 }
 
+@font-face{
+    font-family: 'Gwendolyn-Regular';
+    src:url('../font/Gwendolyn-Regular.ttf');
+}
+
+@font-face{
+    font-family: 'Gwendolyn-Bold';
+    src:url('../font/Gwendolyn-Bold.ttf');
+}
+
+@font-face{
+    font-family:'Metal-Regular';
+    src:url('../font/Metal-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'wt021';
+    src: url('../font/wt021.ttf');
+}
+
+@font-face {
+    font-family: 'wt064';
+    src: url('../font/wt064.ttf');
+}
+
+@font-face {
+    font-family: 'wt071';
+    src: url('../font/wt071.ttf');
+}
+
+@font-face {
+    font-family:'wthc06';
+    src: url('../font/wthc06.ttf');
+}
