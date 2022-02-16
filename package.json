@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start1":"cross-env NODE_ENV=development webpack serve --hot --https",
+    "start1": "cross-env NODE_ENV=development webpack serve --hot --https",
     "start": "cross-env NODE_ENV=development webpack serve --hot"
   },
   "author": "",

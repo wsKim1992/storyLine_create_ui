@@ -172,7 +172,7 @@ const SingleStoryLine=({data,isLastOne})=>{
                                 <span>
                                     <MessageOutlined/>&nbsp;
                                     {
-                                        data.inputText&&       
+                                        (data.inputText&&data.inputText!=="undefined")&&       
                                         <div style={{height:'auto',width:'100%'}}>{data.inputText}</div>
                                     }
                                 </span>

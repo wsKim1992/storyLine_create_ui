@@ -110,7 +110,7 @@ const config = {
         open:true,
         hot:true,
         proxy:{
-            '/ai-tools':'http://localhost:9996'
+            '/ai-tools':`http://1.201.8.81:9996`
         }
     }
 }

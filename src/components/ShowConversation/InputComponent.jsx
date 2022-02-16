@@ -75,7 +75,7 @@ const StyledDiv = styled.div`
     border-radius: 10px;
 `
 
-const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF})=>{
+const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
     const dispatch = useDispatch();
     const {editEntireStory,encodedStoryLine,loadingStory,loadedStory,newStoryLoading,createdStory,creatingStory,encodeAndSaveLoaded,encodeAndSaveLoading,showEntireStory} = useSelector((state)=>state.storyline);
     const {movieType}=useSelector(state=>state.storyData.storyData);
@@ -109,7 +109,13 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
         const blob = new Blob([encodedText],{type:'text/plain'});
         const fileName = `${Date.now()}.pkg`;
         if(window.showSaveFilePicker){
-            const fileHandle = await window.showSaveFilePicker();
+            const opts = {
+                types: [{
+                  description: 'Text file',
+                  accept: {'text/plain': ['.pkg']},
+                }],
+              };
+            const fileHandle = await window.showSaveFilePicker(opts);
             const fileStream = await fileHandle.createWritable();
             await fileStream.write(blob);
             await fileStream.close();
@@ -309,7 +315,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
     },[]);
 
     const onClickPDF = useCallback(()=>{
-        setDownloadInPDF(prevVal => !prevVal);
+        setShowInPDF(prevVal => !prevVal);
     },[])
 
     const onMouseEnterDiv = (e)=>{

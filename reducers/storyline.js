@@ -5,12 +5,12 @@ const initiallState={
     sampleData:{
         createdStory:[
             {
-                id:12121623
+                id:12121621
                 ,inputType:'text'
                 ,outputText:'헨젤과 그레텔 외전'
             },
             {
-                id:12121621
+                id:12121623
                 ,inputType:'text'
                 ,outputText:'일곱 살 현정이와 다섯 살 가람이는 외로운 남매였다. 두 남매의 부모는 자기 하나 앞가림하기 힘든 철없고 어린 부부였다. 자식인 현정이와 가람이를 책임지고 건사할 능력도 의욕도 떨어진지 오래였고, 늘 가난에 허덕였다. 어느새 부부는 술과 게임으로 도피했다. 얼마 남지 않은 생활비를 또다시 술과 게임 아이템을 사는 데에 탕진한 부부는 눈이 마주치자마자 싸움을 벌였다. 부모의 싸움에 이골이 난 현정과 가람은 늘 그랬듯 좁은 방으로 도망쳐 조용히 서로의 귀를 막아주었다. 다음날 부부는 소풍을 위해 가방을 들고 집을 나서고, 현정과 가람은 거실에 고양이 귀가 달린 그릇에 집 열쇠를 두고 부모를 따라 집을 나섰다. 그렇게 좁고 더러웠지만 그래도 유일한 안식처였던 집을 뒤로 하고, 그들을 버리려는 부모를 따라 산으로 올라간다. 숲속으로 가 가족끼리 행복한 시간을 보내는 척 하던 부부는 조용히 현정과 가람이를 두고 사라진다. 현정이와 가람이는 부모가 자신들을 두고 사라지는 것을 알지만 눈물을 참으며 모른 척 한다. '
             },
@@ -115,7 +115,7 @@ const reducer = (state=initiallState,action)=>{
                 draft.decodeAndUploadLoading=false;
                 draft.decodeAndUploadLoaded=true;
                 draft.createdStory=[...action.data];
-                draft.creatingStory=null;
+                draft.creatingStory=action.creating_data;
                 break;
             }
             case DECODE_AND_UPLOAD_FAILURE:{

@@ -100,7 +100,16 @@ async function decodeTextData(textData){
 function* decodeAndUpload(action){
     const {textData}=action;
     const resultArr = (yield call(decodeTextData,textData)).sort((a,b)=>a.id-b.id);
-    yield put({type:DECODE_AND_UPLOAD_SUCCESS,data:resultArr});
+    const data = resultArr.filter((v,i)=>i!==resultArr.length-1);
+    const creating_data = {
+        id:resultArr[resultArr.length-1].id,
+        inputType:resultArr[resultArr.length-1].inputType,
+        inputText:resultArr[resultArr.length-1].inputText,
+        outputText:[resultArr[resultArr.length-1].outputText],
+        storyMode:'story',
+        index:0
+    };
+    yield put({type:DECODE_AND_UPLOAD_SUCCESS,data,creating_data});
 }
 
 function* watchDecodeAndUpload(){
