@@ -1,7 +1,7 @@
 import React,{useState,useRef,useCallback,useContext,useEffect} from 'react';
 import styled from 'styled-components';
 import {Row,Col, Button} from 'antd';
-import {ItalicOutlined,FontColorsOutlined,FontSizeOutlined,UploadOutlined,PictureOutlined,SaveOutlined } from '@ant-design/icons';
+import {ItalicOutlined,FontColorsOutlined,FontSizeOutlined,UploadOutlined,PictureOutlined,SaveOutlined, WindowsFilled } from '@ant-design/icons';
 import CreateStoryPageControllFontSize from './CreateStoryPageControllFontSize';
 import CreateStoryPageSelectFontFamily from './CreateStoryPageSelectFontFamily';
 import CreateStoryPageColorPicker from './CreateStoryPageColorPicker';
@@ -203,13 +203,24 @@ const CreateStoryPageFooter = ({setIsShowBookCoverList,setIsShowLoadBookCoverUpl
         await drawCanvas(tempCanvas,storypage_cover,title,author,basicFontStyle,basicFontSize,basicFontColor);
         const file = canvasDataToBlob(tempCanvas);
         const filename = `${Date.now()}.png`;
-        const aTag = document.createElement('a');
-        const fileURL = window.URL.createObjectURL(file);
-        aTag.href = fileURL;
-        aTag.download=filename;
-        aTag.click();
-        window.URL.revokeObjectURL(fileURL);
-        
+        if(window.showSaveFilePicker){
+            const opts = {
+                types:[{
+                    accept:{'image/png':['.png']},
+                }]
+            }
+            const fileHandle=  await window.showSaveFilePicker(opts);
+            const fileStream = await fileHandle.createWritable();
+            await fileStream.write(file);
+            await fileStream.close();
+        }else{
+            const aTag = document.createElement('a');
+            const fileURL = window.URL.createObjectURL(file);
+            aTag.href = fileURL;
+            aTag.download=filename;
+            aTag.click();
+            window.URL.revokeObjectURL(fileURL);
+        }
     },[author,title,storypage_cover])
 
     return (

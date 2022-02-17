@@ -1,6 +1,7 @@
 import React,{useState,useEffect, useCallback} from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import PDFDocument from './ShowPDFComponent';
 
 const StyledEntireWrap = styled.div`
     width:100%;
@@ -79,7 +80,8 @@ const ShowAllOutputText = ({showPDFRef,pageCoverDataURL,textElementsIntoPDFRef})
         
         <div ref={showPDFRef} style={{height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
             <StyledEntireWrap>
-                {
+                <PDFDocument/>
+                {/* {
                     pageCoverDataURL&&(
                         <StyledImgWrap>
                             <StyledImgContainer>
@@ -112,7 +114,7 @@ const ShowAllOutputText = ({showPDFRef,pageCoverDataURL,textElementsIntoPDFRef})
                         <StyledDivElement>{creatingStory.outputText[creatingStory.index]}</StyledDivElement>
                     </StyledDivElement>
                 }
-                </div>
+                </div> */}
             </StyledEntireWrap>
         </div>
     )

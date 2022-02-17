@@ -9,6 +9,7 @@ import { useDispatch,useSelector } from 'react-redux';
 import ImageUpload from './ImageUpload';
 import RecordComponent from './RecordComponent';
 import styled from 'styled-components';
+import { Link, useNavigate } from 'react-router-dom';
 
 const { Search } = Input;
 
@@ -75,7 +76,7 @@ const StyledDiv = styled.div`
     border-radius: 10px;
 `
 
-const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF})=>{
+const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
     const dispatch = useDispatch();
     const {editEntireStory,encodedStoryLine,loadingStory,loadedStory,newStoryLoading,createdStory,creatingStory,encodeAndSaveLoaded,encodeAndSaveLoading,showEntireStory} = useSelector((state)=>state.storyline);
     const {movieType}=useSelector(state=>state.storyData.storyData);
@@ -109,7 +110,13 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
         const blob = new Blob([encodedText],{type:'text/plain'});
         const fileName = `${Date.now()}.pkg`;
         if(window.showSaveFilePicker){
-            const fileHandle = await window.showSaveFilePicker();
+            const opts = {
+                types: [{
+                  description: 'Text file',
+                  accept: {'pkg': ['.pkg']},
+                }],
+              };
+            const fileHandle = await window.showSaveFilePicker(opts);
             const fileStream = await fileHandle.createWritable();
             await fileStream.write(blob);
             await fileStream.close();
@@ -309,7 +316,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
     },[]);
 
     const onClickPDF = useCallback(()=>{
-        setDownloadInPDF(prevVal => !prevVal);
+        setShowInPDF(prev=>!prev);
     },[])
 
     const onMouseEnterDiv = (e)=>{
@@ -345,7 +352,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
                 <Row onTouchEnd={onTouchEnd} onTouchMove={onTouchMove} onTouchStart={onTouchStart} onMouseOut={onMouseOut} onMouseUp={onMouseUp} onMouseMove={onMouseMove} onMouseDown={onClickWrapRef} ref={btnListRef} gutter={[1.5,1.5]} wrap={false} justify="end" style={{position:'absolute',right:'0',overflow:'hidden',width:'641px',height:'80%',padding:'5.5px 5.5px'}}>
                     {showEntireStory&&
                     <StyledCol span={1.5}>
-                        <StyledButton onClick={onClickPDF} >
+                        <StyledButton onClick={onClickPDF}>
                             <FilePdfOutlined /> 
                             <p>PDF로 <br/>변환</p>
                         </StyledButton>
@@ -432,12 +439,12 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setDownloadInPDF}
                         modeList[modeIdx]==='스토리'&&
                         <StyledCol span={1.5}>
                             <StyledButton onClick={changeInputType}>
-                                    <PictureOutlined />
-                                    <p>
-                                        {
-                                            inputType==='image'?
-                                            'TEXT':'IMAGE'
-                                        }
+                                <PictureOutlined />
+                                <p>
+                                    {
+                                        inputType==='image'?
+                                        'TEXT':'IMAGE'
+                                    }
                                     </p>
                             </StyledButton>
                         </StyledCol>

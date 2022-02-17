@@ -9,7 +9,8 @@ const entryFile = path.resolve(__dirname,"src","client.jsx");
 const outputDir = path.resolve(__dirname,"dist");
 const fs = require('fs');
 const webpack = require("webpack");
-
+const dotenv = require('dotenv');
+dotenv.config();
 const config = {
     mode:mode,
     entry:{
@@ -45,6 +46,18 @@ const config = {
                         publicPath:'/img/',
                         name:'[name].[ext]?[hash]',
                         mimetype:'image/png',
+                        encoding:'base64',
+                        limit:10000,
+                        fallback:require.resolve('file-loader'),
+                    }
+                }
+            },{
+                test:/\.(ttf|woff|otf|eot|TTF)$/,
+                use:{
+                    loader:'url-loader',
+                    options:{
+                        publicPath:'/font/',
+                        name:'[name].[ext]',
                         encoding:'base64',
                         limit:10000,
                         fallback:require.resolve('file-loader'),
@@ -105,12 +118,12 @@ const config = {
             requestCert:true,
         }, */
         historyApiFallback:true,
-        port:8090,
+        port:9009,
         host:"0.0.0.0",
         open:true,
         hot:true,
         proxy:{
-            '/ai-tools':'http://localhost:9996'
+            '/ai-tools':`http://${process.env.API_URL}:${process.env.API_PORT}`
         }
     }
 }

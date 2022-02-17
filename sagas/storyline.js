@@ -37,9 +37,6 @@ const loadStoryWithImageAPI = (data)=>{
 function* loadStory(action){
     try{
         const {inputType,inputText,genre}=action.data;
-        /* console.log(`inputType : ${inputType}`);
-        console.log(`inputText : ${inputText}`);
-        console.log(`input Genre : ${genreApiFuncList[genre]}`); */
         const output = inputType ==='image'?yield call(loadStoryWithImageAPI,action.data):yield call(loadStoryAPI,action.data);
         const outputText = action.data.storyMode==='talk'?output.data['output_ko'].split("\n\n").map(v=>`\"${v}\"`):output.data['output_ko'].replace('\n','');
         console.log(outputText); 
@@ -100,7 +97,16 @@ async function decodeTextData(textData){
 function* decodeAndUpload(action){
     const {textData}=action;
     const resultArr = (yield call(decodeTextData,textData)).sort((a,b)=>a.id-b.id);
-    yield put({type:DECODE_AND_UPLOAD_SUCCESS,data:resultArr});
+    const data = resultArr.filter((v,i)=>i!==resultArr.length-1);
+    const creating_data = {
+        id:resultArr[resultArr.length-1].id,
+        inputType:resultArr[resultArr.length-1].inputType,
+        inputText:resultArr[resultArr.length-1].inputText,
+        outputText:[resultArr[resultArr.length-1].outputText],
+        storyMode:'story',
+        index:0
+    };
+    yield put({type:DECODE_AND_UPLOAD_SUCCESS,data,creating_data});
 }
 
 function* watchDecodeAndUpload(){

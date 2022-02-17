@@ -94,7 +94,7 @@ const StyledBtnWrap = styled.p`
 `;
 
 const StyledTextAreaWrap = styled.div`
-    width:auto;
+    width:${props=>props.width}px;
     height:auto;
     position:absolute;
     top:${props => props.top}%;
@@ -518,13 +518,15 @@ const CreateStoryPageBody = ({
         const style = document.defaultView.getComputedStyle(textArea);
         const height = textArea.style.height ? parseFloat(textArea.style.height.split("px")[0]) : parseFloat(style.height.split("px")[0]);
         const scrollHeight = textArea.scrollHeight;
+        console.log(parseFloat(textArea.style.width.split("px"))<textArea.scrollWidth);
         if (scrollHeight > height) {
-            textArea.style.height = `${scrollHeight}px`;
-            const index = textArea.selectionStart;
+            //textArea.style.height = `${scrollHeight}px`;
+            /* const index = textArea.selectionStart; */
+            /* const isEnter = false;
             dispatch({
                 type: authorOrTitle === 'author' ? MODIFY_AUTHOR_BREAK_POINT : MODIFY_TITLE_BREAK_POINT,
-                index
-            });
+                index,isEnter
+            }); */
         } else if (scrollHeight < height) {
             textArea.style.height = `${scrollHeight}px`;
         }
@@ -532,22 +534,45 @@ const CreateStoryPageBody = ({
         else { setAuthorText(evt.target.value); }
     }
 
-    const onKeyDownTextArea = (evt, id, authorOfTitle) => {
+    const onKeyDownTextArea = (evt, id, authorOrTitle) => {
         const keyCode = evt.keyCode;
         const textArea = document.getElementById(id);
         const index = textArea.selectionStart;
+        const style = document.defaultView.getComputedStyle(textArea);
+        const height = textArea.style.height ? parseFloat(textArea.style.height.split("px")[0]) : parseFloat(style.height.split("px")[0]);
+        const scrollHeight = textArea.scrollHeight;
         if (keyCode === 8) {
             const value = textArea.value
-            const recentBreakPoint = authorOfTitle === 'author'
+            const recentBreakPoint = authorOrTitle === 'author'
                 ? author.break_point_arr[author.break_point_arr.length - 1]
                 : title.break_point_arr[title.break_point_arr.length - 1];
             if (index < recentBreakPoint) {
                 dispatch({
-                    type: authorOfTitle === 'author' ? POP_AUTHOR_BREAK_POINT : POP_TITLE_BREAK_POINT,
+                    type: authorOrTitle === 'author' ? POP_AUTHOR_BREAK_POINT : POP_TITLE_BREAK_POINT,
                     index,
                     text: value
                 })
             }
+        }else if (keyCode===13){
+            console.log("enter typed");
+            const isEnter = false;
+            dispatch({
+                type: authorOrTitle === 'author' ? MODIFY_AUTHOR_BREAK_POINT : MODIFY_TITLE_BREAK_POINT,
+                index,isEnter
+            });
+        }else{
+            if (scrollHeight > height) {
+                /* textArea.style.height = `${scrollHeight}px`;
+                const isEnter = false; */
+                const isEnter = false; 
+                textArea.style.height = `${scrollHeight}px`;
+                dispatch({
+                    type: authorOrTitle === 'author' ? MODIFY_AUTHOR_BREAK_POINT : MODIFY_TITLE_BREAK_POINT,
+                    index,isEnter
+                });
+            } 
+            if (authorOrTitle === 'title') { setTitleText(evt.target.value); }
+            else { setAuthorText(evt.target.value); }
         }
     }
 
@@ -614,6 +639,7 @@ const CreateStoryPageBody = ({
                                 id={`${author.id}_wrap`}
                                 top={author.topRatio * 100}
                                 left={author.leftRatio * 100}
+                                width={author.width}
                                 onMouseDown={(evt)=>onMouseDownTextArea(evt,author.id)}
                                 onMouseMove={(evt) => onMouseMoveTextArea(evt, `${author.id}_wrap`)}
                                 onMouseUp={() => onMouseUpTextArea('author', `${author.id}_wrap`)}
@@ -656,6 +682,7 @@ const CreateStoryPageBody = ({
                                 id={`${title.id}_wrap`}
                                 top={title.topRatio * 100}
                                 left={title.leftRatio * 100}
+                                width={title.width}
                                 onMouseDown={(evt)=>onMouseDownTextArea(evt,title.id)}
                                 onMouseMove={(evt) => onMouseMoveTextArea(evt, `${title.id}_wrap`)}
                                 onMouseUp={() => onMouseUpTextArea('title', `${title.id}_wrap`)}
