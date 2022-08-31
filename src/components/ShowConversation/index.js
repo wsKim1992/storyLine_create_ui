@@ -11,17 +11,6 @@ import ShowPDFComponent from './ShowPDFComponent';
 
 const { Content } = Layout;
 
-const loadImageOnPDF = (doc, pageCoverDataURL, pdfWidth, pdfHeight) => {
-    return new Promise((resolve, reject) => {
-        const titleImage = new Image;
-        titleImage.src = pageCoverDataURL;
-        titleImage.onload = () => {
-            doc.addImage(titleImage, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            resolve();
-        }
-    })
-}
-
 const ConversationIndex = () => {
     const conversationRef = useRef(null);
     const { createdStory, creatingStory, showEntireStory, loadingStory, newStoryLoading } = useSelector((state) => state.storyline);
@@ -32,33 +21,10 @@ const ConversationIndex = () => {
     const [showInPDF, setShowInPDF] = useState(false);
     const showPDFRef = useRef(null);
     const textElementsIntoPDFRef = useRef([]);
-    const [renderPdf, setRenderPdf] = useState(null);
-    /* 
-        useEffect(()=>{
-            console.log('textElementsIntoPDFRef');
-            console.log(textElementsIntoPDFRef.current);
-        },[textElementsIntoPDFRef.current]) */
-
-    /* useEffect(async()=>{
-        if(downloadInPDF&&showPDFRef.current&&textElementsIntoPDFRef.current){
-            const pdfHeight = 512;
-            const pdfWidth = 384;
-            let doc = new jsPDF("p","px",[pdfWidth,pdfHeight]);
-            await loadImageOnPDF(doc,pageCoverDataURL,pdfWidth,pdfHeight);
-            doc.addPage([384,512],"p");
-            
-            html2canvas(textElementsIntoPDFRef.current).then(canvas=>{
-                const imageData=canvas.toDataURL('image/png');
-                console.log(imageData);
-                doc.addImage(imageData,'PNG',0,0,pdfWidth,pdfHeight);
-                doc.save(`${Date.now()}.pdf`);
-            })
-        }
-    },[downloadInPDF,showPDFRef.current,textElementsIntoPDFRef.current]) */
 
     useEffect(() => {
         conversationRef.current.scrollTo(0, conversationRef.current.scrollHeight - conversationRef.current.clientHeight);
-    }, [createdStory, creatingStory])
+    }, [createdStory, creatingStory]);
 
     return (
         <React.Fragment>

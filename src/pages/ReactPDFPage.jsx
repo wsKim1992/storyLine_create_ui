@@ -2,7 +2,6 @@ import React from 'react';
 import { Document, Page, Text, View, StyleSheet, 
     Image, PDFViewer } from '@react-pdf/renderer';
 import {useSelector} from 'react-redux';
-import { useEffect } from 'react';
 
 const styles = StyleSheet.create({
     pdfViewer:{
@@ -34,8 +33,8 @@ const PDFDocument = () => {
     const {createdStory,creatingStory} = useSelector(state=>state.storyline);
     const {storyData} = useSelector(state=>state.storyData);
 
-    return (
-        <PDFViewer style={styles.pdfViewer}>
+    const MainDocument = ()=>{
+        return(
             <Document>
                 {
                     storyData.pageCoverDataURL&&
@@ -56,6 +55,12 @@ const PDFDocument = () => {
                     </Page>
                 }
             </Document>
+        )
+    }
+
+    return (
+        <PDFViewer style={styles.pdfViewer}>
+            <MainDocument/>
         </PDFViewer>
     )
 }

@@ -15,6 +15,7 @@ const StyledCloseButtonWrap = styled.div`
     text-align:center;
     font-size:3.05vh;
     color:white;
+    margin-bottom:50px;
 `;
 
 const StyledButtonWrap = styled.div`

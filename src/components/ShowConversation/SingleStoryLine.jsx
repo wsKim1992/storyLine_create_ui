@@ -69,6 +69,7 @@ const OutputStoryContextDiv = styled.div`
     align-items:center;
     justify-content:center;
     padding:0.5%;
+    white-space:pre-wrap;
 `;
 
 const StyledImage= styled(Image)`
@@ -120,7 +121,6 @@ const SingleStoryLine=({data,isLastOne})=>{
     useEffect(()=>{
         if(!editMode){
             const outputTextHeight = parseFloat(document.defaultView.getComputedStyle(outputTextRef.current).height.split("px"));
-            console.log(outputTextHeight);
             setOutputHeight(outputTextRef.current.getBoundingClientRect().height);
         }else{
             if(textareaRef.current){

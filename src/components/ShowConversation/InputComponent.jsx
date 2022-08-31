@@ -10,11 +10,12 @@ import ImageUpload from './ImageUpload';
 import RecordComponent from './RecordComponent';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
+import SaveFileTypesComponent from './SaveFileTypesComponent';
 
 const { Search } = Input;
 
 const StyledEntireWrap = styled.div`
-    overflow:hidden;
+    overflow: visible;
     position:relative;
     border-radius:10px;
     border:1px solid #454545;
@@ -93,6 +94,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
     const [prevBtnListPointerX,setPrevBtnListPointerX]=useState(-1);
     const mouseComponentRef=useRef(null);
     const inputComponentRef=useRef(null);
+    const [isSaveClicked,setIsSaveClicked] = useState(false);
 
     const onClickGenre = useCallback(()=>{
         if(genreIndex===genreList.length-1){
@@ -106,14 +108,14 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
         return showEntireStory||loadingStory;
     },[showEntireStory,loadingStory])
 
-    const saveFile = async(encodedText)=>{
+    /* const saveFile = async(encodedText)=>{
         const blob = new Blob([encodedText],{type:'text/plain'});
         const fileName = `${Date.now()}.pkg`;
         if(window.showSaveFilePicker){
             const opts = {
                 types: [{
                   description: 'Text file',
-                  accept: {'pkg': ['.pkg']},
+                  accept: {'text/plain': ['.pkg']},
                 }],
               };
             const fileHandle = await window.showSaveFilePicker(opts);
@@ -128,7 +130,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
             aTag.click();
             window.URL.revokeObjectURL(fileURL);
         }
-    }
+    } */
    
     useEffect(()=>{
         const index = genreList.findIndex((ele)=>ele===movieType)
@@ -139,12 +141,13 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
         dispatch({type:CHANGE_GENRE,data:genreList[genreList]});
     },[genreIndex])
 
-    useEffect(()=>{
+    /* useEffect(()=>{
         if(encodeAndSaveLoaded&&!encodeAndSaveLoading){
+            console.log(encodedStoryLine)
             saveFile(encodedStoryLine);
             dispatch({type:ENCODE_AND_SAVE_INIT});
         }
-    },[encodeAndSaveLoaded,encodeAndSaveLoading])
+    },[encodeAndSaveLoaded,encodeAndSaveLoading]) */
 
     useEffect(()=>{
         if(!loadingStory&&loadedStory){
@@ -183,7 +186,12 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
     }
 
     const onClickSave = ()=>{
-        if(!creatingStory||createdStory.length===0){
+        if(createdStory.length===0&&creatingStory===null){
+            alert("스토리를 생성해 주세요!");
+            return false;
+        }
+        setIsSaveClicked(prev=>!prev);
+        /* if(!creatingStory||createdStory.length===0){
             alert('스토리를 생성 해주세요!');
             return false;
         }
@@ -191,7 +199,7 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
             dispatch({type:ENCODE_AND_SAVE_REQUEST,data:[...createdStory,{...creatingStory,outputText:creatingStory.outputText[creatingStory.index]}]});
         }else{
             dispatch({type:ENCODE_AND_SAVE_REQUEST,data:[...createdStory]});
-        }
+        } */
     }
 
     const onClickUpload = (evt)=>{
@@ -211,7 +219,10 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
     }
 
     const onClickRetry = useCallback(()=>{
-        if(!creatingStory)return false;
+        if(!creatingStory){
+            alert("스토리를 생성해 주세요!");
+            return false;
+        }
         const inputData={inputType:creatingStory.inputText?inputType:'text',genre:genreList[genreIndex],inputText:creatingStory.inputText?creatingStory.inputText:createdStory[createdStory.length-1].outputText,storyMode:creatingStory.storyMode};
         dispatch({type:CHANGE_LAST_STORY_INDEX_REQUEST,data:inputData});
     },[creatingStory,createdStory]);
@@ -237,11 +248,15 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
     },[createdStory,creatingStory,editEntireStory]);
 
     const onClickNext = useCallback(()=>{
+        if(createdStory.length===0&&creatingStory===null){
+            alert("스토리를 생성해 주세요!");
+            return false;
+        }
         const storyMode = modeList[modeIdx]==='스토리'?'story':'talk';
         const inputText= creatingStory.outputText[creatingStory.index];
         const data = {genre:genreList[genreIndex],storyMode,inputType:'text',inputText,isInputEqualsOutput:true};
         dispatch({type:LOAD_STORY_REQUEST, data});
-    },[modeIdx,creatingStory,genreIndex,inputType]);
+    },[modeIdx,creatingStory,createdStory,genreIndex,inputType]);
 
     const onClickWrapRef=(e)=>{
         e.stopPropagation();
@@ -349,15 +364,18 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
     return( 
         <React.Fragment>
             <StyledEntireWrap ref={btnListWrapRef} >
+                {isSaveClicked&&
+                    <SaveFileTypesComponent/>
+                }
                 <Row onTouchEnd={onTouchEnd} onTouchMove={onTouchMove} onTouchStart={onTouchStart} onMouseOut={onMouseOut} onMouseUp={onMouseUp} onMouseMove={onMouseMove} onMouseDown={onClickWrapRef} ref={btnListRef} gutter={[1.5,1.5]} wrap={false} justify="end" style={{position:'absolute',right:'0',overflow:'hidden',width:'641px',height:'80%',padding:'5.5px 5.5px'}}>
-                    {showEntireStory&&
+                    {/* {showEntireStory&&
                     <StyledCol span={1.5}>
                         <StyledButton onClick={onClickPDF}>
                             <FilePdfOutlined /> 
                             <p>PDF로 <br/>변환</p>
                         </StyledButton>
                     </StyledCol>
-                    }
+                    } */}
                     {!showEntireStory&&
                     <StyledCol span={1.5}>
                         <StyledButton onClick={onClickReset} >
@@ -470,11 +488,12 @@ const InputComponent = ({message,setMessage,isSpeak,setIsSpeak,setShowInPDF})=>{
                             (
                                 <Search
                                     type='text'
-                                    style={{color:'#454545'}}
+                                    style={{color:'#454545',display:'flex',flexDirection:'row',alignItems:'center'}}
                                     id="searchComponent"
                                     placeholder={modeMessage[modeIdx]}
                                     allowClear
-                                    enterButton={<SendOutlined/>}
+                                    enterButton={<SendOutlined style={{display:'block',width:'100%', height: '33.3%'
+                                    ,marginBottom: '33.3%'}}/>}
                                     size="large"
                                     onChange={onChangeMessage}
                                     onSearch={onSearch}

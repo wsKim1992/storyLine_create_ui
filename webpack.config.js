@@ -79,7 +79,40 @@ const config = {
             minify:{
                 collapseWhitespace:true,
                 removeComments:true,
-            }
+            },
+            metas:[
+                {
+                    path:'https://novel.aizac.io/assets/img/novel_main_002.jpg',
+                    attributes:{
+                        property:'og:image',
+                    } 
+                },{
+                    attributes:{
+                        property:'og:url',
+                        content:'https://novel.aizac.io/main'
+                    }
+                },{
+                    attributes:{
+                        property:'og:title',
+                        content:'AI-zac Novel'
+                    }
+                },{
+                    attributes:{
+                        property:'og:description',
+                        content:'AI 소설생성 서비스'
+                    }
+                },{
+                    attributes: {
+                        property: 'og:image:width',
+                        content: "200"
+                    }
+                },{
+                    attributes: {
+                        property: 'og:image:height',
+                        content: "200"
+                    }
+                }
+            ]
         }),
         ...(mode==='production'?[new MiniCssExtractPlugin({
             filename:"[name].css"

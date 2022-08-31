@@ -57,10 +57,11 @@ const StyledCloseButtonIcon = styled.p`
 const convertIntoNewText = (text,break_point_arr)=>{
     let arrToReturn = [];
     for(let i =0;i<break_point_arr.length;i++){
+        console.log(break_point_arr[i]);
         const stringToPut = text.substring(i===0?i:break_point_arr[i-1],break_point_arr[i]).replace('\n','');
         if(stringToPut!=='')arrToReturn.push(stringToPut);
     }
-    arrToReturn.push(text.substring(break_point_arr[break_point_arr.length-1],text.length))
+    arrToReturn.push(text.substring(break_point_arr[break_point_arr.length-1],text.length));
     return arrToReturn.join('\n');
 }
 
@@ -97,7 +98,7 @@ const writeTextOnCanvas=(canvas,title)=>{
                 canvas.getContext('2d').fillText(textArr[i],titleLeft,titleTop+((i+1)*fontSize),width);
             }
         }else{
-            canvas.getContext('2d').fillText('title',titleLeft,titleTop)
+            canvas.getContext('2d').fillText('title',titleLeft,titleTop,title.width)
         }
     }
 }

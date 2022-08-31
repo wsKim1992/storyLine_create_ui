@@ -6,8 +6,9 @@ import PDFDocument from './ShowPDFComponent';
 const StyledEntireWrap = styled.div`
     width:100%;
     height:100%;
-    background-color:rgb(34, 34, 34);
+    background-color:#454545;
     font-family: 'Nanum Myeongjo';
+    position:relative;
 `
 
 const StyledDivElement = styled.div`
@@ -16,9 +17,10 @@ const StyledDivElement = styled.div`
     font-size:18.5px;
     border:none;
     border-radius:9.5px;
-    background-color:rgb(34, 34, 34);
-    color:#fff; 
-    padding:5px;
+    background-color:#fff;
+    color:#000; 
+    padding:5.5%;
+    white-space : pre-wrap;
 `
 
 const StyledImgWrap = styled.div`
@@ -78,43 +80,50 @@ const ShowAllOutputText = ({showPDFRef,pageCoverDataURL,textElementsIntoPDFRef})
 
     return(
         
-        <div ref={showPDFRef} style={{height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
+        <div ref={showPDFRef} style={{width:'100%',height:'100%',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
             <StyledEntireWrap>
                 <PDFDocument/>
-                {/* {
-                    pageCoverDataURL&&(
-                        <StyledImgWrap>
-                            <StyledImgContainer>
-                                <StyledImgCover src={pageCoverDataURL}/>
-                            </StyledImgContainer>
-                        </StyledImgWrap>
-                   )
-                }
-                <div ref={textElementsIntoPDFRef}>
-                {   
-                    createdStory.map((v,i)=>{
-                        return (
-                            <StyledDivElement key={i}>
-                                <StyledDivElement key={`${i}_input`}>
-                                    {v.inputType!=='image'?
-                                        v.inputText:
-                                        returnImgComponent(v.inputText)
-                                    }
+                {/* {isMobile
+                    &&!isBrowser
+                    &&(
+                    <div>
+                        {
+                            pageCoverDataURL&&(
+                                <StyledImgWrap>
+                                    <StyledImgContainer>
+                                        <StyledImgCover src={pageCoverDataURL}/>
+                                    </StyledImgContainer>
+                                </StyledImgWrap>
+                        )
+                        }
+                        <div ref={textElementsIntoPDFRef}>
+                        {   
+                            createdStory.map((v,i)=>{
+                                return (
+                                    <StyledDivElement key={i}>
+                                        <StyledDivElement key={`${i}_input`}>
+                                            {v.inputType!=='image'?
+                                                v.inputText:
+                                                returnImgComponent(v.inputText)
+                                            }
+                                        </StyledDivElement>
+                                        <StyledDivElement key={`${i}_output`}>{v.outputText}</StyledDivElement>
+                                    </StyledDivElement>)
+                            })
+                        }
+                        {
+                            creatingStory&&
+                            <StyledDivElement>
+                                <StyledDivElement>
+                                    {creatingStory.inputType==='image'?returnImgComponent(creatingStory?.inputText):creatingStory.inputText}
                                 </StyledDivElement>
-                                <StyledDivElement key={`${i}_output`}>{v.outputText}</StyledDivElement>
-                            </StyledDivElement>)
-                    })
-                }
-                {
-                    creatingStory&&
-                    <StyledDivElement>
-                        <StyledDivElement>
-                            {creatingStory.inputType==='image'?returnImgComponent(creatingStory?.inputText):creatingStory.inputText}
-                        </StyledDivElement>
-                        <StyledDivElement>{creatingStory.outputText[creatingStory.index]}</StyledDivElement>
-                    </StyledDivElement>
-                }
-                </div> */}
+                                <StyledDivElement>{creatingStory.outputText[creatingStory.index]}</StyledDivElement>
+                            </StyledDivElement>
+                        }
+                        </div>
+                    </div>
+                )
+            } */}
             </StyledEntireWrap>
         </div>
     )

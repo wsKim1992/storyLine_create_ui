@@ -158,37 +158,37 @@ const storyPageReducer = (state,action)=>{
         }
         case POP_AUTHOR_BREAK_POINT:{
             const {author} = state;
-            const {index,text}=action;
+            const {text}=action;
             const {break_point_arr}=author;
-            break_point_arr
             const newAuthor = {...author,break_point_arr:break_point_arr.filter(v=>v<text.length-1)};
             return {...state,author:newAuthor};
         }
         case POP_TITLE_BREAK_POINT:{
             const {title}=state;
-            const {index,text}=action;
+            const {text}=action;
             const {break_point_arr}=title;
-            const newTitle= {...title,break_point_arr:break_point_arr.filter(v=>v<text.length-1)};
+            let newTitle={};
+            newTitle= {...title,break_point_arr:break_point_arr.filter(v=>v<text.length-1)};
             return {...state,title:newTitle};
         }
         case MODIFY_AUTHOR_BREAK_POINT:{
-            const {index,isEnter}=action;
+            const {index,isEnter,text}=action;
             console.log(`index:${index}`);
             const {author}=state;
-            if(index===author.break_point_arr[author.break_point_arr.length-1]){
+            /* if(index===author.break_point_arr[author.break_point_arr.length-1]){
                 return state;
-            }
-            const newAuthor = {...author,break_point_arr:[...author.break_point_arr,isEnter?index:index-1].sort((a,b)=>a>b)};
+            } */
+            const newAuthor = {...author,text,break_point_arr:[...author.break_point_arr,isEnter?index:index-1].sort((a,b)=>a<b)};
             return {...state,author:newAuthor};
         }
         case MODIFY_TITLE_BREAK_POINT:{
-            const {index}=action;
+            const {index,isEnter,text}=action;
             console.log(`index:${index}`);
             const {title}=state;
-            if(index===title.break_point_arr[title.break_point_arr.length-1]){
+            /* if(index===title.break_point_arr[title.break_point_arr.length-1]){
                 return state;
-            }
-            const newTitle = {...title,break_point_arr:[...title.break_point_arr,index].sort((a,b)=>a>b)};
+            } */
+            const newTitle = {...title,text,break_point_arr:[...title.break_point_arr,isEnter?index:index-1].sort((a,b)=>a<b)};
             return {...state,title:newTitle};
         }
         case INSERT_AUTHOR :{

@@ -94,7 +94,7 @@ const StyledBtnWrap = styled.p`
 `;
 
 const StyledTextAreaWrap = styled.div`
-    width:${props=>props.width}px;
+    width:${props => props.width}px;
     height:auto;
     position:absolute;
     top:${props => props.top}%;
@@ -120,11 +120,13 @@ const StyledTextArea = styled.textarea`
     background-color: transparent;
     overflow:hidden;
     resize:both;
-    white-space:pre-line;
+    white-space:pre-wrap;
     &::-webkit-scrollbar {
         display:none;
     }
     border-radius:5.5px;
+    box-sizing: content-box;
+    word-break: break-all;
 `
 
 const StyledTextAreaButtonWrap = styled.div`
@@ -163,13 +165,13 @@ const initTextArea = (canvas, topOffset, leftOffset, text, id, fontSize, width) 
     const titleText = text;
     const titleId = `${id}_${Date.now()}`;
     const titleOriginalTopOffset = standardHeight / topOffset;
-    const titleOriginalLeftOffset = (standardWidth-width)/2;
+    const titleOriginalLeftOffset = (standardWidth - width) / 2;
     const titleTop = titleOriginalTopOffset;
     const titleLeft = titleOriginalLeftOffset;
     const titleFontSize = fontSize
     const titleHeight = titleFontSize;
     const titleWidth = width;
-
+    console.log(titleHeight);
     const titleTopRatio = titleOriginalTopOffset / canvas.height;
     const titleLeftRatio = titleOriginalLeftOffset / canvas.width;
     const titleHeightRatio = titleHeight / canvas.height;
@@ -210,13 +212,14 @@ const CreateStoryPageBody = ({
     const [textAreaOffsetX, setTextAreaOffsetX] = useState(-1);
     const [textAreaOffsetY, setTextAreaOffsetY] = useState(-1);
     const { storyData } = useSelector(state => state.storyData);
-
+    const titleRef = useRef(null);
+    const authorRef = useRef(null);
     useEffect(() => {
         if (canvasRef.current && canvasInit) {
             const standardWidth = canvasRef.current.width;
             const title = storyData.title ? storyData.title : initTextArea(canvasRef.current, 2, 3, 'book title', 'bookTitle', 44, 250);
             const author = storyData.author ? storyData.author : initTextArea(canvasRef.current, 1.5, 3, 'author', 'author', 35, 160);
-
+            console.log(title.height);
             dispatch({ type: INIT_TITLE_AUTHOR, title, author });
             setTitleText(title.text); setAuthorText(author.text);
         }
@@ -238,7 +241,7 @@ const CreateStoryPageBody = ({
                 tempImage.src = storypage_cover;
                 tempImage.onload = () => {
                     canvasRef.current.getContext('2d').drawImage(tempImage, 0, 0
-                        , canvasRef.current.width 
+                        , canvasRef.current.width
                         , canvasRef.current.height);
                     setCanvasURL(canvasRef.current.toDataURL('image/png'));
                 }
@@ -301,11 +304,11 @@ const CreateStoryPageBody = ({
         const fontSizeRatio = basicFontSize / canvasRef.current.height;
         if (inputType === 'title') {
             if (!title) {
-                dispatch({ type: INSERT_TITLE, data: { topRatio, leftRatio, width, height: (basicFontSize), top, left, id: Date.now(), text: '제목을 입력해 주세요', break_point_arr: [], fontSizeRatio, widthRatio } });
+                dispatch({ type: INSERT_TITLE, data: { fontStyle:'\'SANGJUGyeongcheonIsland\'',fontColor:'#fff', topRatio, leftRatio, width, height: (basicFontSize), top, left, id: Date.now(), text: 'Book Title', break_point_arr: [], fontSizeRatio, widthRatio } });
             }
         } else {
             if (!author) {
-                dispatch({ type: INSERT_AUTHOR, data: { topRatio, leftRatio, width, height: (basicFontSize), top, left, id: Date.now(), text: '작가명을 입력해 주세요', break_point_arr: [], fontSizeRatio, widthRatio } });
+                dispatch({ type: INSERT_AUTHOR, data: {fontStyle:'\'SANGJUGyeongcheonIsland\'',fontColor:'#fff',topRatio, leftRatio, width, height: (basicFontSize), top, left, id: Date.now(), text: 'Author', break_point_arr: [], fontSizeRatio, widthRatio } });
             }
         }
         let img = new Image();
@@ -358,22 +361,22 @@ const CreateStoryPageBody = ({
             const { clientX, clientY } = evt.changedTouches[0];
             const offsetX = clientX - canvasRef.current.getBoundingClientRect().x;
             const offsetY = clientY - canvasRef.current.getBoundingClientRect().y;
-            
+
             const width = offsetX - prevX; const height = offsetY - prevY;
-            let top = prevY ;
-            let left = prevX ;
-            const topRatio = parseFloat(top/canvasRef.current.height);
-            const leftRatio = parseFloat(left/canvasRef.current.width);
+            let top = prevY;
+            let left = prevX;
+            const topRatio = parseFloat(top / canvasRef.current.height);
+            const leftRatio = parseFloat(left / canvasRef.current.width);
             const fontSizeRatio = basicFontSize / canvasRef.current.height;
             const fontSize = basicFontSize;
             if (inputType === 'title') {
                 if (!title) {
-                    dispatch({ type: INSERT_TITLE, data: { text:'제목',fontSizeRatio,break_point_arr: [],topRatio, leftRatio ,width, height:fontSize, top, left, id: Date.now()}});
-                } 
+                    dispatch({ type: INSERT_TITLE, data: { fontStyle:'\'SANGJUGyeongcheonIsland\'',fontColor:'#fff',text: 'Book Title', fontSizeRatio, break_point_arr: [], topRatio, leftRatio, width, height: fontSize, top, left, id: Date.now() } });
+                }
             } else {
                 if (!author) {
-                    dispatch({ type: INSERT_AUTHOR, data: { text:'작가명',fontSizeRatio,break_point_arr: [],topRatio, leftRatio ,width, height:fontSize, top, left, id: Date.now()}});
-                } 
+                    dispatch({ type: INSERT_AUTHOR, data: { fontStyle:'\'SANGJUGyeongcheonIsland\'',fontColor:'#fff',text: 'Author', fontSizeRatio, break_point_arr: [], topRatio, leftRatio, width, height: fontSize, top, left, id: Date.now() } });
+                }
             }
 
             let img = new Image();
@@ -388,8 +391,10 @@ const CreateStoryPageBody = ({
 
     const onClickDeleteButton = useCallback((type) => {
         if (type === 'title') {
+            setTitleText('');
             dispatch({ type: DELETE_TITLE });
         } else {
+            setAuthorText('');
             dispatch({ type: DELETE_AUTHOR });
         }
     }, []);
@@ -402,7 +407,7 @@ const CreateStoryPageBody = ({
         const fontStyle = `\'${style.getPropertyValue('font-family')}\'`;
         const fontSize = parseFloat(style.getPropertyValue('font-size').split("px")[0]);
         const fontSizeRatio = fontSize / canvasRef.current.getBoundingClientRect().height;
-        const text = textAreaElement.value; 
+        const text = textAreaElement.value;
         if (thisInputType === 'title') {
             dispatch({ type: MODIFY_TITLE, data: { fontColor, fontStyle, fontSize, text, fontSizeRatio } });
         } else if (thisInputType === 'author') {
@@ -414,7 +419,7 @@ const CreateStoryPageBody = ({
     }, [])
 
     const onClickTextArea = useCallback((evt, type, id) => {
-        document.getElementById(`${id}`).style.border = '1px solid #985e11';
+        /* document.getElementById(`${id}`).style.border = '1px solid #985e11'; */
         document.getElementById(`${id}`).style.backgroundColor = 'transparent';
         document.getElementById(`${id}_btnWrap`).style.display = 'flex';
         document.getElementById(`${id}_wrap`).style.border = '1px solid #985e11';
@@ -442,7 +447,7 @@ const CreateStoryPageBody = ({
     }, [coverSampleImgIndex, storypage_cover])
 
     const onMouseEnterTextArea = useCallback((id) => {
-        document.getElementById(`${id}`).style.border = '1px solid #985e11';
+        /* document.getElementById(`${id}`).style.border = '1px solid #985e11'; */
         document.getElementById(`${id}`).style.backgroundColor = 'transparent';
         document.getElementById(`${id}_btnWrap`).style.display = 'flex';
         document.getElementById(`${id}_wrap`).style.border = '1px solid #985e11';
@@ -460,11 +465,11 @@ const CreateStoryPageBody = ({
         }
     }, [isTextAreaDraw])
 
-    const onMouseDownTextArea = useCallback((evt,textAreaId) => {
+    const onMouseDownTextArea = useCallback((evt, textAreaId) => {
         if (!isTextAreaDraw) {
-            const textAreaElement= document.getElementById(textAreaId);
-            textAreaElement.style.pointerEvents='none';
-            textAreaElement.style.userSelect='none';
+            const textAreaElement = document.getElementById(textAreaId);
+            textAreaElement.style.pointerEvents = 'none';
+            textAreaElement.style.userSelect = 'none';
             setIsTextAreaDraw(true);
             setTextAreaOffsetX(evt.nativeEvent.offsetX); setTextAreaOffsetY(evt.nativeEvent.offsetY);
         }
@@ -478,9 +483,9 @@ const CreateStoryPageBody = ({
             const newTop = evt.clientY - canvasWrapRef.current.getBoundingClientRect().y - textAreaOffsetY;
             const thisTextAreaWidth = parseFloat(document.defaultView.getComputedStyle(thisTextArea).width.split("px")[0]);
             const thisTextAreaHeight = parseFloat(document.defaultView.getComputedStyle(thisTextArea).height.split("px")[0]);
-            if(newLeft<=0 || newTop<=0 
-                || newLeft+thisTextAreaWidth>canvasRef.current.width 
-                || newTop+thisTextAreaHeight>canvasRef.current.height){
+            if (newLeft <= 0 || newTop <= 0
+                || newLeft + thisTextAreaWidth > canvasRef.current.width
+                || newTop + thisTextAreaHeight > canvasRef.current.height) {
                 setIsTextAreaDraw(false);
                 setTextAreaOffsetX(-1);
                 setTextAreaOffsetY(-1);
@@ -494,8 +499,8 @@ const CreateStoryPageBody = ({
 
     const onMouseUpTextArea = useCallback((flag, id) => {
         if (isTextAreaDraw) {
-            document.getElementById(id.slice(0,id.lastIndexOf("_"))).style.pointerEvents='auto';
-            document.getElementById(id.slice(0,id.lastIndexOf("_"))).style.userSelect='auto';
+            document.getElementById(id.slice(0, id.lastIndexOf("_"))).style.pointerEvents = 'auto';
+            document.getElementById(id.slice(0, id.lastIndexOf("_"))).style.userSelect = 'auto';
             const thisTextArea = document.getElementById(id);
             const style = document.defaultView.getComputedStyle(thisTextArea);
             const left = parseFloat(style.getPropertyValue("left").split('px')[0]);
@@ -518,18 +523,6 @@ const CreateStoryPageBody = ({
         const style = document.defaultView.getComputedStyle(textArea);
         const height = textArea.style.height ? parseFloat(textArea.style.height.split("px")[0]) : parseFloat(style.height.split("px")[0]);
         const scrollHeight = textArea.scrollHeight;
-        console.log(parseFloat(textArea.style.width.split("px"))<textArea.scrollWidth);
-        if (scrollHeight > height) {
-            //textArea.style.height = `${scrollHeight}px`;
-            /* const index = textArea.selectionStart; */
-            /* const isEnter = false;
-            dispatch({
-                type: authorOrTitle === 'author' ? MODIFY_AUTHOR_BREAK_POINT : MODIFY_TITLE_BREAK_POINT,
-                index,isEnter
-            }); */
-        } else if (scrollHeight < height) {
-            textArea.style.height = `${scrollHeight}px`;
-        }
         if (authorOrTitle === 'title') { setTitleText(evt.target.value); }
         else { setAuthorText(evt.target.value); }
     }
@@ -541,38 +534,33 @@ const CreateStoryPageBody = ({
         const style = document.defaultView.getComputedStyle(textArea);
         const height = textArea.style.height ? parseFloat(textArea.style.height.split("px")[0]) : parseFloat(style.height.split("px")[0]);
         const scrollHeight = textArea.scrollHeight;
+        const value = textArea.value;
+        console.log(value)
         if (keyCode === 8) {
-            const value = textArea.value
             const recentBreakPoint = authorOrTitle === 'author'
                 ? author.break_point_arr[author.break_point_arr.length - 1]
                 : title.break_point_arr[title.break_point_arr.length - 1];
             if (index < recentBreakPoint) {
                 dispatch({
                     type: authorOrTitle === 'author' ? POP_AUTHOR_BREAK_POINT : POP_TITLE_BREAK_POINT,
-                    index,
                     text: value
-                })
-            }
-        }else if (keyCode===13){
-            console.log("enter typed");
-            const isEnter = false;
-            dispatch({
-                type: authorOrTitle === 'author' ? MODIFY_AUTHOR_BREAK_POINT : MODIFY_TITLE_BREAK_POINT,
-                index,isEnter
-            });
-        }else{
-            if (scrollHeight > height) {
-                /* textArea.style.height = `${scrollHeight}px`;
-                const isEnter = false; */
-                const isEnter = false; 
-                textArea.style.height = `${scrollHeight}px`;
-                dispatch({
-                    type: authorOrTitle === 'author' ? MODIFY_AUTHOR_BREAK_POINT : MODIFY_TITLE_BREAK_POINT,
-                    index,isEnter
                 });
-            } 
-            if (authorOrTitle === 'title') { setTitleText(evt.target.value); }
-            else { setAuthorText(evt.target.value); }
+            }
+        } else {
+            if (37 > keyCode || keyCode > 40) {
+                if (scrollHeight > height) {
+                    const isEnter = false;
+                    dispatch({
+                        type: authorOrTitle === 'author' ? MODIFY_AUTHOR_BREAK_POINT : MODIFY_TITLE_BREAK_POINT,
+                        text:value,index:(index>=value.length-1)?index:value.length-1, isEnter
+                    });
+                }
+            }
+           /*  if (authorOrTitle === 'title') { setTitleText(value); }
+            else { setAuthorText(value); } */
+        }
+        if (scrollHeight > height) {
+            textArea.style.height = `${scrollHeight}px`;
         }
     }
 
@@ -584,15 +572,15 @@ const CreateStoryPageBody = ({
             const newYVal = clientY - y;
             setTextAreaOffsetX(newXVal);
             setTextAreaOffsetY(newYVal);
-            const textAreaId = id.slice(0,id.lastIndexOf("_"));
-            document.getElementById(textAreaId).style.pointerEvents="none";
+            const textAreaId = id.slice(0, id.lastIndexOf("_"));
+            document.getElementById(textAreaId).style.pointerEvents = "none";
             document.body.style.overflow = "hidden";
             setIsTextAreaDraw(true);
         }
     }, [isTextAreaDraw])
 
     const onTouchMoveTextArea = (evt, id) => {
-        if(isTextAreaDraw){
+        if (isTextAreaDraw) {
             const { clientX, clientY } = evt.changedTouches[0];
             const { x, y } = canvasRef.current.getBoundingClientRect();
             const newLeft = clientX - x - textAreaOffsetX;
@@ -600,21 +588,21 @@ const CreateStoryPageBody = ({
             const textArea = document.getElementById(id);
             const thisTextAreaWidth = parseFloat(document.defaultView.getComputedStyle(textArea).width.split("px")[0]);
             const thisTextAreaHeight = parseFloat(document.defaultView.getComputedStyle(textArea).height.split("px")[0]);
-            if(newLeft<=0 || newTop<=0
-                || newLeft+thisTextAreaWidth >canvasRef.current.width
-                || newTop+thisTextAreaHeight>canvasRef.current.height
-            ){
+            if (newLeft <= 0 || newTop <= 0
+                || newLeft + thisTextAreaWidth > canvasRef.current.width
+                || newTop + thisTextAreaHeight > canvasRef.current.height
+            ) {
                 setIsTextAreaDraw(false);
                 setTextAreaOffsetX(-1);
                 setTextAreaOffsetY(-1);
                 return false;
             }
-            
+
             textArea.style.left = `${newLeft}px`;
-            textArea.style.top = `${newTop}px`; 
+            textArea.style.top = `${newTop}px`;
         }
     };
-    
+
     return (
         <StyledPageBodyWrap >
             {isShowLoadBookCoverUpload && <CreateStoryPageUploadImage setIsShowLoadBookCoverUpload={setIsShowLoadBookCoverUpload} />}
@@ -640,7 +628,7 @@ const CreateStoryPageBody = ({
                                 top={author.topRatio * 100}
                                 left={author.leftRatio * 100}
                                 width={author.width}
-                                onMouseDown={(evt)=>onMouseDownTextArea(evt,author.id)}
+                                onMouseDown={(evt) => onMouseDownTextArea(evt, author.id)}
                                 onMouseMove={(evt) => onMouseMoveTextArea(evt, `${author.id}_wrap`)}
                                 onMouseUp={() => onMouseUpTextArea('author', `${author.id}_wrap`)}
                                 onMouseEnter={() => onMouseEnterTextArea(author.id)}
@@ -658,6 +646,7 @@ const CreateStoryPageBody = ({
                                     </StyledTextAreaDeleteButton>
                                 </StyledTextAreaButtonWrap>
                                 <StyledTextArea
+                                    ref={authorRef}
                                     value={authorText}
                                     data-gramm="false"
                                     data-gramm_editor="false"
@@ -668,7 +657,7 @@ const CreateStoryPageBody = ({
                                     id={author.id}
                                     spellcheck="false"
                                     width={author.width}
-                                    height={author.fontSize ? author.fontSize : basicFontSize}
+                                    height={author.height}
                                     fontColor={author.fontColor ? author.fontColor : basicFontColor}
                                     fontSize={author.fontSize ? author.fontSize : basicFontSize}
                                     fontStyle={author.fontStyle ? author.fontStyle : basicFontStyle}
@@ -683,7 +672,7 @@ const CreateStoryPageBody = ({
                                 top={title.topRatio * 100}
                                 left={title.leftRatio * 100}
                                 width={title.width}
-                                onMouseDown={(evt)=>onMouseDownTextArea(evt,title.id)}
+                                onMouseDown={(evt) => onMouseDownTextArea(evt, title.id)}
                                 onMouseMove={(evt) => onMouseMoveTextArea(evt, `${title.id}_wrap`)}
                                 onMouseUp={() => onMouseUpTextArea('title', `${title.id}_wrap`)}
                                 onMouseEnter={() => onMouseEnterTextArea(title.id)}
@@ -701,6 +690,7 @@ const CreateStoryPageBody = ({
                                     </StyledTextAreaDeleteButton>
                                 </StyledTextAreaButtonWrap>
                                 <StyledTextArea
+                                    ref={titleRef}
                                     value={titleText}
                                     data-gramm="false"
                                     data-gramm_editor="false"
@@ -711,7 +701,7 @@ const CreateStoryPageBody = ({
                                     onFocus={(evt) => onClickTextArea(evt, 'title', title.id)}
                                     id={title.id}
                                     width={title.width}
-                                    height={title.fontSize ? title.fontSize : basicFontSize}
+                                    height={title.height}
                                     fontColor={title.fontColor ? title.fontColor : basicFontColor}
                                     fontSize={title.fontSize ? title.fontSize : basicFontSize}
                                     fontStyle={title.fontStyle ? title.fontStyle : basicFontStyle}
